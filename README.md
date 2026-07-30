@@ -1,0 +1,83 @@
+# specs-ui-color-palette
+
+Internal engineering specifications for the **UI Color Palette** product, meant to serve as a foundation for further development (new features, refactors, new platform surfaces).
+
+## This folder is not `docs-ui-color-palette`
+
+`docs-ui-color-palette` is the **public/user-facing documentation**, organized by surface (`api/`, `claude/`, `figma/`, `framer/`, `mcp/`, `penpot/`, `sketch/`, `legal/`). It explains *how to use* the finished product.
+
+`specs-ui-color-palette` is the **engineering documentation**, organized by functional domain. It explains *how the product is built* and *what we plan to change*. Audience: the dev team (you, and any future contributor or agent who needs to implement a feature without rediscovering the whole monorepo).
+
+## Method: foundation + specs on demand
+
+We don't specify everything at once. Two content categories, two writing cadences:
+
+1. **Foundation (`00-overview/`, `01-domain-model/`)** — written once, rarely updated. Describes the overall architecture and the domain model (Palette, Color System, User Context). This is the shared reference for all future feature specs.
+2. **Feature specs (`02-features/`, `03-platform-bridges/`, `04-contracts/`)** — written one at a time, **right before or during** the relevant development, using the [`TEMPLATE.md`](./TEMPLATE.md) template. Files not yet addressed already exist as *stubs* (summary + pointers to existing code) so we don't start from scratch the day we fill them in.
+
+A feature spec is never an exhaustive audit of existing code: it documents the current state *relevant to the feature at hand*, then the proposal. Nothing more.
+
+## Spec status
+
+Each feature/contract file carries a status in its header:
+
+- `Stub` — summary + code pointers, not yet written
+- `Draft` — being written
+- `Proposed` — ready for review before implementation
+- `Accepted` — validated, ready to guide development
+- `Implemented` — the described development has shipped
+- `Superseded` — replaced by a newer spec (link to the new one)
+
+## Structure
+
+```
+00-overview/          # Monorepo map, glossary — stable
+01-domain-model/       # Palette, Color System, User Context — stable
+02-features/            # One spec per UI module (palettes, scale, preview, settings, preferences, modals)
+03-platform-bridges/    # Bridge contracts + per-platform specifics (Figma, Penpot, Sketch, Framer)
+04-contracts/           # External surfaces consumed/exposed: API, MCP, iframe↔host messages
+TEMPLATE.md             # Template for any new feature spec
+```
+
+## Map
+
+Every file links back here and sideways to what it depends on — start anywhere and follow the "See also" section at the bottom of each doc, or use this index.
+
+### 00 — Overview
+
+- [Architecture](00-overview/architecture.md) — the ~13-repo monorepo map, dependency graph, the two ways to drive the product
+- [Glossary](00-overview/glossary.md) — every domain term, each pointing to the spec that defines it in depth
+
+### 01 — Domain model (stable foundation)
+
+- [Palette](01-domain-model/palette.md) — generation inputs, edit operations, local vs. published lifecycle, quotas, export
+- [Color System](01-domain-model/color-system.md) — the semantic layer on top of a palette: taxonomy, bindings, resolution
+- [User context](01-domain-model/user-context.md) — identity/session, plan/trial/credits, consent, pre-action guardrails
+
+### 02 — Features (one per UI module)
+
+- [Palettes](02-features/palettes.md) — local palette listing, creation, duplication, deletion
+- [Scale](02-features/scale.md) — presets, raw vs. contrast-ratio editing, custom stops, easing
+- [Preview](02-features/preview.md) — contrast scoring, the per-color contrast report, preview settings
+- [Settings](02-features/settings.md) — palette name/description, global color settings, deletion
+- [Preferences](02-features/preferences.md) — language, deep sync with the host editor
+- [Modals](02-features/modals.md) — publishing, pricing/license, onboarding, utility dialogs
+- [Color System (feature)](02-features/color-system.md) — what exists today (engine/API/MCP) vs. the not-yet-built design-tool UI
+
+### 03 — Platform bridges
+
+- [Bridge catalog](03-platform-bridges/bridge-actions.md) — the shared UI↔host message-to-bridge inventory
+- [Figma / FigJam](03-platform-bridges/figma.md)
+- [Penpot](03-platform-bridges/penpot.md)
+- [Sketch](03-platform-bridges/sketch.md)
+- [Framer](03-platform-bridges/framer.md)
+
+### 04 — Contracts (external surfaces)
+
+- [REST API](04-contracts/api-endpoints.md) — `api-ui-color-palette`, all `/v1` endpoints
+- [MCP server](04-contracts/mcp-tools.md) — `mcp-ui-color-palette`, tool-to-endpoint mapping
+- [Bridge messages & analytics events](04-contracts/events-messages.md) — UI↔host contract and Mixpanel event catalog
+
+## Content origin
+
+The foundation (00-overview, 01-domain-model) was reconstructed on 2026-07-27 by reading the `ui-ui-color-palette` code (types, bridges, stores) and the READMEs of `engine-ui-color-palette`, `api-ui-color-palette`, `mcp-ui-color-palette`. This is a reconstruction, not a design — some points are inferences and must be validated by the author (marked `⚠️ to verify`).
