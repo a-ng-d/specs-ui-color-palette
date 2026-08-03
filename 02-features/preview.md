@@ -1,70 +1,63 @@
 # Feature — Preview (preview & contrast report)
 
-- **Status**: Draft (as-is consolidation — no behavior change proposed at this stage)
+- **Status**: Draft (as-is behavior, with two confirmed bugs flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/preview`
 - **Related spec**: [Palette](../01-domain-model/palette.md), [User context](../01-domain-model/user-context.md)
 
-## 1. Context
+## Problem
 
-This spec documents contrast-score display/filtering on shades, the detailed per-color contrast report, and the preview panel's contextual settings (color space, source-color locking, insertion). Consolidation only, no proposed evolution.
+The contrast report has two confirmed bugs: its pass/fail scores can disagree with the scores used to filter shades elsewhere, and its "report opened" analytics event fires far more often than it should. This spec documents current preview behavior and marks both for fixing.
 
-## 2. Current behavior (as-is)
+## User flow
 
-### Score display & filtering
+1. From the shade list, the user can show/hide WCAG and APCA scores, and show/hide "pass range" banners for each, via independent toggles.
+2. The user can filter shades by pass/fail status, separately for WCAG and APCA, and separately for light and dark foreground — a "Reset" option appears once any filter is active.
+3. Clicking a shade opens a full-screen contrast report (while editing) showing:
+   - The source color and shade name, with previous/next navigation between shades.
+   - An editable sample-text playground (text + font weight) that resets every time the report reopens.
+   - A light-text/dark-text toggle.
+   - A grid of scores: WCAG ratio, APCA score, a custom "readability" score, and a minimum recommended font size for the current weight.
+4. If the report itself is plan-blocked, placeholder colors are shown behind an upsell message instead of real data.
+5. In the preview panel's settings (edit mode only), the user can change color space, lock/unlock source colors, switch themes, and insert a new color or stop.
 
-Two menus in the preview panel, both plan-gated:
+## Rules
 
-- **Display**: 4 independent toggles — show WCAG score, show APCA score, show WCAG "pass range" banner, show APCA "pass range" banner. Each is persisted and tracked independently.
-- **Filter**: for WCAG and APCA separately, light and dark foreground separately, a 3-state filter (all / passing only / failing only). Filters are **not persisted and not tracked** — they only affect what's currently shown. A "Reset" affordance reappears as soon as any filter isn't set to "all". There's **no configurable pass/fail threshold** in the UI — the thresholds are hardcoded (see the report section below, and §6 for a discrepancy between the two).
+- Score filters are not persisted and not tracked — only the display toggles are.
+- There's no configurable pass/fail threshold in the UI; thresholds are hardcoded, aligned with the WCAG 2.1 (ratio-based) and WCAG 3.0 (APCA-based) standards.
+- The pass/fail thresholds used in the contrast report and the ones used to filter the shade list are supposed to be identical, and currently aren't (see Acceptance criteria).
+- The vision-simulation control does **not** live in the preview settings panel — it lives in the themes panel instead, applied per theme.
+- Plan-blocked report access shows placeholder colors, never the real palette data, behind an upsell.
 
-Each individual toggle is separately plan-gated, prompting a trial/upgrade flow if blocked.
+## Acceptance criteria
 
-### Contrast report
+- [ ] Given a shade's WCAG/APCA scores, when they're shown in the contrast report and when they're used to filter the shade list, then both use the identical pass/fail comparison. *(currently the two disagree — confirmed bug, fix pending)*
+- [ ] Given the contrast report is open, when the user types sample text, changes font weight, or switches tabs, then no additional "report opened" analytics event fires. *(currently fires on every such re-render — confirmed bug, fix pending)*
+- [ ] Given the contrast report is closed and reopened, when it opens, then exactly one "report opened" analytics event fires.
+- [ ] Given a score-display toggle is flipped, when the change is applied, then it persists across sessions and is tracked in analytics.
+- [ ] Given a score filter is changed, when shades are filtered, then the result updates immediately without any persistence or analytics side effect.
+- [ ] Given the `REPORT` feature is plan-blocked, when a user opens a shade, then placeholder colors and an upsell message are shown instead of the real contrast data.
 
-A full-screen panel (edit-mode inspection only), opened by clicking a shade. Contains:
+## Out of scope
 
-- A title banner with the source color and shade name, plus previous/next navigation between shades.
-- An editable (not persisted) playground: sample text and font weight, reset every time the report is reopened.
-- A light-text/dark-text toggle.
-- A contrast grid showing: the WCAG ratio (color-coded: fail / warning / pass, with a pass badge at the standard AA threshold), the APCA score (same color-coding logic, pass badge at its own threshold), a **locally computed "readability" score** — a custom formula derived from the APCA score and adjusted by font weight, not delegated to the shared color engine — and a minimum recommended font size for the current weight.
-- If the report itself is plan-blocked: placeholder colors are shown behind an upsell message instead of the real contrast data.
-- The "report opened" analytics event currently fires **on every re-render** of the panel (typing in the sample text, changing weight, switching tabs) rather than only once when the report is actually opened — confirmed a real bug, not intended (see §6).
+- Making pass/fail thresholds configurable in the UI.
+- Validating the "readability" score formula against UX research — it's a custom, unvalidated calculation today: the APCA (Lc) score rescaled to 100, multiplied by a font-weight weighting (1× at weight 400, 1.15× above 500, 0.85× below 400).
+- Adding a vision-simulation control to the preview settings panel (it stays theme-scoped, in the themes panel).
 
-### Preview settings
-
-Visible only while editing (except the theme switcher, which stays visible):
-
-- A color-space picker (9 spaces: LCH, OKLCH, LAB, OKLAB, HSL, HSV, HSLUV, CMYK).
-- A lock/unlock toggle for source colors.
-- A theme switcher.
-- An "Insert" menu (add color / add stop), quota-gated.
-- **No vision-simulation control lives in this panel** — that control actually lives in the themes panel instead, applied per theme (see §6).
-
-## 3. Proposal (to-be)
-
-None — consolidation spec. Any future evolution of this module should start from this documented state.
-
-## 4. Data model
+## Implementation notes
 
 Score display state is 4 independent booleans plus a 4-way filter state (WCAG/APCA × light/dark). The contrast report keeps its own local, non-persisted state (sample text, text-theme choice, font weight). Preview settings pass through color space, source-color lock, themes, and an update callback. Not duplicated further here — see `../01-domain-model/palette.md`.
 
-## 5. Impact
-
-- **Stores**: the 4 display toggles and per-shade contrast scores are read/written by sibling modules (the shade list and the preview shell), not directly by the 3 files documented here. Color-space, lock, and vision-mode changes are applied by the preview shell, not by the sub-components themselves.
-- **Bridges**: display-toggle changes persist via the generic item-storage message; lock/color-space/vision-mode changes persist via the generic palette-update message; blocked features trigger a trial/upgrade prompt. **No "jump to this shade on the canvas" bridge exists** — previous/next navigation in the contrast report only changes what's shown in the panel, it doesn't select anything on the document.
-- **Analytics**: score-display toggles, opening the contrast report (see the re-render bug above), color-space changes, and source-color locking are all tracked. Score **filters are not tracked** at all.
+- **Stores**: the 4 display toggles and per-shade contrast scores are read/written by sibling modules (the shade list and the preview shell), not directly by the files documented here. Color-space, lock, and vision-mode changes are applied by the preview shell, not by the sub-components themselves.
+- **Vision simulation**: the vision-simulation action still present in the preview shell's update handler is legacy code — it's not currently wired to any control in preview (see Rules: the live control lives in the themes panel instead), but it was kept because it may be reconnected as a preview-scoped toggle in the future.
+- **Bridges**: display-toggle changes persist via the generic item-storage message; lock/color-space/vision-mode changes persist via the generic palette-update message; blocked features trigger a trial/upgrade prompt. No "jump to this shade on the canvas" bridge exists — previous/next navigation in the contrast report only changes what's shown in the panel.
+- **Analytics**: score-display toggles, opening the contrast report, color-space changes, and source-color locking are all tracked. Score filters are not tracked at all.
 - **Credits**: no credit consumption identified — gating here is plan-based only.
 - **Platforms**: the only platform-specific behavior found is a background color choice (for the upsell overlay) that varies by host editor.
 
-## 6. Open questions
+## Open questions
 
-- The vision-simulation action exists in the preview shell's update handler but has no control anywhere in the preview settings panel — dead code, or an extension point for a future toggle directly in preview (today it only lives in the themes panel)?
-- ~~Inconsistent pass/fail thresholds between the contrast report and shade-list filtering~~ (the report uses an absolute-value APCA comparison, the shade list doesn't) — **Answered (author)**: confirmed a real bug, not intended — the two are supposed to show identical pass/fail results. Needs fixing so both use the same comparison.
-- Are the pass/fail thresholds themselves (4.5/7 for WCAG, 30/45/70 for APCA) aligned with a named standard (WCAG 2.1 AA/AAA, APCA Bronze/Silver/Gold), or arbitrarily chosen? Undecided.
-- Has the custom "readability score" formula been validated against any UX research, or is it a placeholder? Undecided.
-- ~~"Report opened" tracked on every re-render~~ — **Answered (author)**: confirmed a real bug, not intended. Fix: track it once, at the point the report actually opens, not inside the render path.
-- Score filters aren't tracked at all, unlike the display toggles — intentional?
+- Is the lack of tracking on score filters (unlike the display toggles) intentional?
 
 ## See also
 
@@ -72,9 +65,11 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 - [Scale](scale.md) — the contrast-ratio editing mode shares the same WCAG math as this module's report
 - [Settings](settings.md) — color space and vision-simulation controls also appear in the preview panel
 
-## 7. History
+## History
 
 | Date | Change |
 | --- | --- |
 | 2026-07-27 | Created — as-is consolidation from an agent's code reading |
 | 2026-07-30 | Rewritten at a functional level (behavior/edge cases instead of file/line references), internal links added |
+| 2026-08-03 | Reformatted to the Problem/User flow/Rules/Acceptance criteria template |
+| 2026-08-04 | Resolved three open questions: vision-simulation handler is legacy code kept as a possible future re-connection point; thresholds confirmed aligned with WCAG 2.1/3.0; readability-score formula documented (APCA Lc rescaled to 100 × font-weight weighting) |

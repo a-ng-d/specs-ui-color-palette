@@ -1,96 +1,80 @@
 # Feature — Scale (scales & presets)
 
-- **Status**: Draft (as-is consolidation — no behavior change proposed at this stage)
+- **Status**: Draft (as-is behavior, with confirmed dead code and tracking gaps flagged — see below)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/scale`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§4)
 
-## 1. Context
+## Problem
 
-This spec documents how scale editing currently works: preset selection, editing lightness/hue/chroma, the "contrast ratio" alternative mode, easing, and custom stops. It's the module with the most unresolved internal inconsistencies found during research (see §6) — settle those before building on top of it.
+Scale editing has real internal inconsistencies that were never resolved: two custom-stop caps where one is now dead code, two different "reset" behaviors depending on which editing view triggered them, and several actions that silently aren't tracked in analytics. This spec documents current behavior and marks what's confirmed to need cleanup.
 
-## 2. Current behavior (as-is)
+## User flow
 
-### Two ways to edit the same scale
+1. The user picks a preset from 18 built-in options (or a fully custom scale) — the scale recomputes from that preset's stops/bounds/easing.
+2. The user edits the scale in one of two mutually exclusive views, toggled by a single switch, both operating on the exact same underlying scale:
+   - **Raw editing** — direct stop/lightness/hue/chroma editing.
+   - **Contrast-ratio editing** — set a target WCAG contrast ratio per stop instead, and the underlying lightness is solved for it.
+3. With a custom preset active, the user can add/remove stops (up to a 6-stop plan limit today).
+4. The user can reverse all stop values around the scale's midpoint, or reset the scale back to the active preset's defaults.
+5. Two independent sliders (hue, chroma) apply a global offset to the whole scale.
+6. A separate easing control (curve × velocity), outside both editing views, shapes the distribution of the scale.
+7. A keyboard-shortcuts panel is available as a reference — it's purely informational, listing interactions implemented by the underlying slider components.
 
-Editing a theme's scale has **two mutually exclusive views**, switched by a single toggle:
-- **Raw editing** — preset picker, direct stop/lightness/hue/chroma editing.
-- **Contrast-ratio editing** — the same stops, but driven indirectly: you set a target WCAG contrast ratio per stop and the underlying lightness is solved for it. No presets, no hue/chroma in this view.
+## Rules
 
-Both views edit the exact same underlying scale — switching between them doesn't create two separate states.
+- 6 of the 18 presets show a "(family)" suffix in their name — Material, Material 3 (family "Google"), ADS, ADS Neutral (family "Atlassian"), and Spectrum, Spectrum Neutral (family "Adobe"). Each is set via a per-preset `updateName` flag hardcoded in the switch-preset handler; the other 12 presets (Tailwind, Ant, Bootstrap, Radix, Untitled UI, Open Color, Carbon, Base, Polaris, Fluent, plus the 3 custom starting points) never get the suffix. No single systematic rule ties the flag to the preset's name/family shape — it reads as a manual, one-off choice per preset.
+- Custom stops: a hardcoded ceiling of 24 stops exists, but a separate plan-based limit resolves to 6 stops for every plan today — since 6 is reached first, the 24 cap is effectively dead code under the current configuration. This ceiling is a technical limit tied to how much data each host platform can currently persist per palette; it's expected to be revisited if platforms allow storing more data.
+- Adding a stop derives its new position from the existing stops; confirmed to stay correct after repeated add/remove cycles on unevenly spaced stops.
+- **Reset** behaves differently depending on which view triggered it: raw-editing reset restores stops, chroma, and hue to the preset's defaults; contrast-ratio reset only restores chroma. Neither reapplies the preset's original easing curve — both silently fall back to linear.
+- Hue and chroma shifts are **global offsets applied to the whole scale**, not per-stop.
+- In contrast-ratio mode, editing a ratio caps how far a single edit can move a stop's lightness relative to its previous value (a minimum jump of 5%, or 10% of the previous lightness, whichever is larger), to avoid a jarring jump from one ratio edit.
+- If an edit breaks the stops' monotonic order, the scale is partially re-sorted — mostly interpolated back into order, but still favoring the value the user just typed.
 
-### Presets
+## Acceptance criteria
 
-- 18 built-in presets (Material, Material 3, Tailwind, Ant, Bootstrap, Radix, Untitled UI, Open Color, ADS/ADS Neutral, Spectrum/Spectrum Neutral, Carbon, Base, Polaris, Fluent, plus 3 "Custom" variants) plus fully custom stops.
-- 6 of the 18 presets show a "(family)" suffix in their name, the other 12 don't — the exact rule distinguishing them isn't documented (see §6).
-- Selecting a preset recomputes the scale from that preset's stops/bounds/easing.
+- [ ] Given a custom preset with fewer than 6 stops, when the user adds a stop, then the addition succeeds up to 6 stops, then blocks with a plan/upgrade prompt.
+- [ ] Given the scale is in raw-editing view, when the user resets, then stops, chroma, and hue all return to the active preset's defaults.
+- [ ] Given the scale is in contrast-ratio view, when the user resets, then behavior matches raw-editing reset (stops, chroma, and hue all return to defaults). *(currently only chroma resets in this view — confirmed divergence, fix pending)*
+- [ ] Given any reset, when it completes, then the preset's original easing curve is reapplied rather than silently falling back to linear. *(currently not the case — confirmed gap, fix pending)*
+- [ ] Given the user reverses the stops, when the action is tracked, then the analytics event correctly identifies "reverse" as the triggering action. *(currently the message never records which action triggered it — confirmed gap)*
+- [ ] Given the user shifts hue or chroma, when the action completes, then it is tracked in analytics the same way preset/stop/reset changes are. *(currently not tracked at all — confirmed gap)*
+- [ ] Given the keyboard-shortcuts panel is open, when it re-renders without the user reopening it, then no additional "opened" analytics event fires. *(currently fires on every re-render — confirmed gap)*
+- [ ] Given an edit breaks stop monotonicity, when the scale re-sorts, then stops remain lighter/darker than their neighbors in order, while still favoring the just-edited value.
 
-### Custom stops
+## Out of scope
 
-- Only editable when a custom preset is active.
-- Two caps currently coexist: a hardcoded ceiling of 24 stops, and a separate plan-based limit that currently resolves to 6 stops for every plan. Since 6 is reached first, **the 24 cap is effectively unreachable today** — confirmed dead under the current configuration, status as deliberate future-proofing vs. cleanup candidate is still open.
-- Adding a stop derives its position from the existing stops; whether this stays correct after repeated add/remove cycles on unevenly spaced stops hasn't been verified (see §6).
+- Removing the dead 24-stop cap — kept deliberately as a technical ceiling that may be raised if host platforms allow persisting more data per palette; not cleanup debt.
+- Making the "(family)" suffix rule systematic — it stays a manual, per-preset choice (see Rules for the current 6).
+- Any change to which runtime applies scale updates on the host side (the embedded `engine-ui-color-palette`), or how it maps to each platform's sandbox.
 
-### Reverse & reset
-
-- **Reverse** mirrors every stop's value around the scale's midpoint.
-- **Reset** behaves differently depending on which view triggered it: the raw-editing reset restores stops, chroma, and hue to the preset's defaults; the contrast-ratio reset only restores chroma. Whether this divergence is intentional is still open (see §6).
-- Neither reset re-applies the preset's original easing curve — both silently fall back to linear.
-
-### Hue & chroma shift
-
-- Two independent sliders apply a **global offset** to the whole scale (not per-stop): hue in ±180°, chroma 0–200% (default 100%).
-
-### Contrast-ratio mode
-
-- Precomputes, for every stop, the WCAG ratio against the theme's light and dark text colors.
-- Editing a ratio solves back for the lightness that produces it, capping how far a single edit can move a stop relative to its previous value (a minimum jump of 5%, or 10% of the previous lightness, whichever is larger) — this keeps one big ratio edit from producing a jarring lightness jump.
-- If an edit breaks the stops' monotonic order (each stop should stay lighter/darker than its neighbors), the scale is partially re-sorted: mostly interpolated back into order, but still favoring the value the user just typed.
-
-### Easing
-
-- A separate curve (Linear / Ease-in / Ease-out / Ease-in-out) × velocity (Sine/Quad/Cubic) control, applied on top of the scale, lives outside the raw/contrast-ratio views (in the shared scale panel, alongside the raw/contrast-ratio switch itself).
-
-### Keyboard shortcuts panel
-
-- Purely informational — it lists available interactions (drag a stop, select, deselect, tab between stops, type a value, nudge by 1) but doesn't implement any shortcut logic itself; that behavior lives in the underlying slider components.
-
-## 3. Proposal (to-be)
-
-None — consolidation spec.
-
-## 4. Data model
+## Implementation notes
 
 Reuses the engine's `PresetConfiguration`, `ScaleConfiguration` (stop → lightness map), `ShiftConfiguration` (chroma/hue offsets), and `EasingConfiguration`. See `../01-domain-model/palette.md` §4 for the full set of scale-related actions.
 
-## 5. Impact
-
 - **Stores**: scale edits are written directly to the shared palette store from multiple editing components at once — there's no single dedicated "scale" store, and several components independently subscribe to the same palette state while editing.
 - **Bridge**: all scale edits funnel through a single `UPDATE_SCALE` message. On the receiving end, adding/removing a stop also recomputes the scale for themes that aren't currently active, using logic that isn't identical to how the sending side recomputes it — worth double-checking if stop count ever becomes theme-specific.
-- **Analytics**: preset changes, add/remove stop, and reset are tracked. Reverse is tracked but the underlying message never says which action triggered it. Hue/chroma shifts and the easing action are **not tracked** at all today.
+- **Engine**: the runtime that actually applies scale updates (recomputing stops/lightness/easing) is `engine-ui-color-palette` — it's embedded locally within each platform's plugin (Figma, Penpot, Sketch, Framer each bundle their own copy), not a remote/shared service.
+- **Analytics**: preset changes, add/remove stop, and reset are tracked (with the gaps noted above for reverse/hue/chroma/keyboard shortcuts).
 - **Platforms/plan**: every control is plan-gated identically across platforms; the actual availability differences live in the shared feature-flag configuration, not in this module.
 
-## 6. Open questions
+## Open questions
 
-- Raw-editing reset touches stops+chroma+hue, contrast-ratio reset only touches chroma — intended divergence or tech debt?
-- Neither reset reapplies the preset's easing — intentional fallback to linear, or an oversight?
-- Reverse-stops is tracked without recording which action caused it — worth fixing if that analytics gap matters.
-- Hue/chroma shifts and the easing action aren't tracked — deliberate exclusion from "Scale Updated" analytics, or a gap?
-- The keyboard-shortcuts panel tracks its "opened" analytics event on every re-render while open, not just once on open — likely inflates the count; worth confirming before trusting that metric.
-- ~~Two custom-stop caps (24 vs. plan-based)~~ — **Resolved**: the plan-based cap currently resolves to 6 for every plan, making the 24 cap unreachable today. Still open whether the 24 cap is deliberate future-proofing or dead code to remove.
-- Does the stop-adding formula stay correct after repeated add/remove cycles on unevenly spaced stops?
-- What's the exact rule distinguishing the 6 "family"-suffixed presets from the other 12?
-- Which runtime actually applies scale updates on the host side, and how does it relate to the per-platform sandboxes (Figma/Penpot/Sketch/Framer)?
+*(none — see resolutions in History)*
 
 ## See also
 
 - [Palette](../01-domain-model/palette.md) §4 — the full list of scale operations tracked as `ScaleEvent`
 - [Preview](preview.md) — the contrast-ratio editing mode uses the same WCAG math as the contrast report
 - [Bridge messages & analytics events](../04-contracts/events-messages.md) — `ScaleMessage` / `ScaleEvent` payload shape
+- [Colors](colors.md), [Themes](themes.md) — the sibling source-color and theme editors, same full-payload bridge pattern
 
-## 7. History
+## History
 
 | Date | Change |
 | --- | --- |
 | 2026-07-27 | Created — as-is consolidation from an agent's code reading |
 | 2026-07-30 | Rewritten at a functional level (behavior/edge cases instead of file/line references), internal links added |
+| 2026-08-03 | Reformatted to the Problem/User flow/Rules/Acceptance criteria template |
+| 2026-08-04 | Resolved all four open questions: 24-stop cap is deliberate (tied to platform storage limits), the 6 family-suffixed presets identified (Material, Material 3, ADS, ADS Neutral, Spectrum, Spectrum Neutral), the applying runtime is the embedded `engine-ui-color-palette`, and the stop-adding formula confirmed correct after repeated add/remove cycles |
+| 2026-08-04 | Linked new [Colors](colors.md) and [Themes](themes.md) specs |

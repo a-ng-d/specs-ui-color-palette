@@ -1,41 +1,47 @@
 # [Feature name]
 
-- **Status**: Stub | Draft | Proposed | Accepted | Implemented | Superseded
+- **Status**: Draft | Proposed | Accepted | Implemented | Superseded
 - **Package(s) concerned**: e.g. `ui-ui-color-palette`, `engine-ui-color-palette`
-- **Author**:
-- **Date**:
 - **Related spec**: (link to another spec if there's a dependency/succession)
 
-## 1. Context
+## Problem
 
-Why this spec exists. What user or technical need triggers this development. Link to the originating issue/discussion if one exists.
+What's broken, missing, or painful today, from the user's or the product's perspective. Not a solution yet — just the gap this spec closes. Link to the originating issue/discussion if one exists.
 
-## 2. Current behavior (as-is)
+## User flow
 
-What the code does today, only within the scope relevant to this feature. Don't re-audit the whole module — point to the relevant files (`src/ui/modules/...`, `src/bridges/...`, `src/stores/...`) rather than copying their content.
+The steps a user actually takes, start to finish, once this ships. Numbered, concrete, in plain language — not a UI wireframe.
 
-## 3. Proposal (to-be)
+## Rules
 
-What changes. Target behavior, design decisions, edge cases handled.
+The business rules and edge cases that govern the behavior: validation, limits, what happens when inputs conflict, platform-specific variations. This is where "what if X" gets answered before someone has to guess while implementing.
 
-## 4. Data model
+## Acceptance criteria
 
-Types/interfaces added or changed (reference `01-domain-model/` where possible rather than duplicating).
+- [ ] Given <context>, when <action>, then <observable outcome>
 
-## 5. Impact
+One behavior per line, phrased so it can actually be checked by trying it. If a statement can't be verified this way, it belongs in Rules instead.
+
+## Out of scope
+
+What this spec deliberately does not cover, so nobody expands it mid-implementation or files a bug for something that was never promised.
+
+## Implementation notes
+
+Technical detail relevant to building this — reference `01-domain-model/` rather than duplicating its content:
 
 - **Bridges** (`src/bridges/`): new actions? modified actions?
 - **Stores** (`src/stores/`): new state? migration of existing state?
-- **Platforms** (Figma / Penpot / Sketch / Framer): is the feature available everywhere or only on certain platforms? Why?
+- **Platforms** (Figma / Penpot / Sketch / Framer): available everywhere or only on certain platforms? Why?
 - **API / MCP** (`04-contracts/`): new endpoint, new tool, or reuse of an existing one?
 - **Credits / plan** (`config.fees`, `checkCredits`): does the action consume credits?
 - **Analytics** (`types/events.ts`): new Mixpanel event to add?
 
-## 6. Open questions
+## See also
 
-Undecided points. A `Proposed` spec can have open questions; an `Accepted` spec shouldn't have any blocking ones left.
+- Related specs, linked both ways.
 
-## 7. History
+## History
 
 | Date | Change |
 | ---- | ------ |

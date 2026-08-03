@@ -86,6 +86,6 @@ Formats supported by `generate_code` (primitives only): see [`04-contracts/api-e
 ## See also
 
 - [Glossary](../00-overview/glossary.md) — Palette / Color System / Published palettes terms
-- Features built on this model: [Palettes](../02-features/palettes.md), [Scale](../02-features/scale.md), [Settings](../02-features/settings.md), [Preview](../02-features/preview.md), [Modals](../02-features/modals.md) (publication lifecycle)
+- Features built on this model: [Palettes](../02-features/palettes.md), [Colors](../02-features/colors.md), [Themes](../02-features/themes.md), [Scale](../02-features/scale.md), [Settings](../02-features/settings.md), [Preview](../02-features/preview.md), [Modals](../02-features/modals.md) (publication lifecycle)
 - How primitives sync to design tools: [`03-platform-bridges/bridge-actions.md`](../03-platform-bridges/bridge-actions.md) and the per-platform specs
 - External surface: [REST API](../04-contracts/api-endpoints.md), [MCP tools](../04-contracts/mcp-tools.md), [bridge messages](../04-contracts/events-messages.md)

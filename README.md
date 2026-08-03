@@ -81,3 +81,5 @@ Every file links back here and sideways to what it depends on — start anywhere
 ## Content origin
 
 The foundation (00-overview, 01-domain-model) was reconstructed on 2026-07-27 by reading the `ui-ui-color-palette` code (types, bridges, stores) and the READMEs of `engine-ui-color-palette`, `api-ui-color-palette`, `mcp-ui-color-palette`. This is a reconstruction, not a design — some points are inferences and must be validated by the author (marked `⚠️ to verify`).
+
+`TEMPLATE.md` was revised on 2026-08-03 to a Problem / User flow / Rules / Acceptance criteria / Out of scope / Implementation notes shape. The seven `02-features/` files were converted to match on the same date: as-is behavior now reads as `User flow` + `Rules`, confirmed bugs/gaps are captured as failing `Acceptance criteria` (with a note on why they're not yet met), and settled author answers were folded directly into `Rules`/`Out of scope` instead of staying in a resolved Q&A list. Two sections outside the strict template are kept where they earn their place: `Open questions` (only when something genuinely unresolved remains) and `See also` (cross-links between specs).

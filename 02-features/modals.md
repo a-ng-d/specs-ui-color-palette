@@ -1,97 +1,82 @@
 # Feature — Modals
 
-- **Status**: Draft (as-is consolidation — no behavior change proposed at this stage)
+- **Status**: Draft
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/modals/` (15 modals)
 - **Related spec**: [User context](../01-domain-model/user-context.md), [Palette](../01-domain-model/palette.md) (§6, publication lifecycle)
 
-## 1. Context
+## Problem
 
-This spec documents the 15 modals of the application: palette publishing, monetization (pricing/license), onboarding/announcements, and utility modals (about, report, store, preferences, chat, feedback, notifications). This is the largest module and the one carrying the most sensitive business logic (publishing, payment, licensing) — handle with care for any future development.
+Most of the 15 modals work as designed and were confirmed intentional by the author, but a few carry known legacy debt: the Onboarding modal is dead (replaced by a third-party driver library), a publication-specific modal-context entry is unused, and one pricing-trigger type shows no card at all. This spec documents current modal behavior and flags what's confirmed legacy vs. what's confirmed intentional.
 
-## 2. Current behavior (as-is)
+## User flow
 
-### Publication
+### Publishing a palette
 
-Not routed through the generic modal system like the others — it's mounted directly inside the palette editor, gated by whether the current palette is eligible for publishing, and opened from a dedicated toolbar button.
+1. From the palette editor's toolbar, the user opens the Publication modal (only available when the current palette is eligible).
+2. If signed out, they see a sign-in wall with a single CTA.
+3. If signed in, they see the palette's publish status (one of 9 states, e.g. not yet published / local changes ready to push / remote is newer / up to date / can be reverted) with the matching primary/secondary action (Publish, Sync, Revert, Detach, Unpublish).
+4. They can toggle "Share" on/off before publishing or pushing changes.
+5. They can star/unstar a published palette (a paid action, prompting a trial/upgrade flow if blocked).
 
-Two renders depending on whether the user is signed in:
-- **Signed in**: title "Publish" if the current user owns the palette (or it has no owner yet), otherwise "Sync"; palette preview; name/preset/description; a status chip; the original creator's avatar shown only when viewing a palette published by someone else and its status allows re-syncing; a star (favorite) button except when the palette isn't published or the remote copy can't be found.
-- **Signed out**: a sign-in wall with a single "Sign in" call to action.
+### Upgrading
 
-A 9-state publication status machine is computed by comparing local timestamps against the remote copy and checking ownership. Each status maps to a primary/secondary action pair:
+1. The user opens Pricing (from various entry points) and sees Week/Month/Year/Lifetime tabs with localized pricing, an "Ultimate" card, and — depending on how Pricing was opened — an "Activate license" card or a custom-checkout card.
+2. They start checkout, which opens externally or in an embedded payment iframe depending on the platform.
+3. On success, they land on a "Welcome to Pro" confirmation.
 
-| Status | Action(s) |
-| --- | --- |
-| Not yet published | Publish |
-| Local changes ready to push | Publish / Revert |
-| Remote is newer (you own it) | Sync / Detach |
-| Remote is newer (someone else owns it) | resolves to "up to date" |
-| Published | Publish (disabled unless sharing changed) / Unpublish |
-| Up to date | Detach only |
-| Can be reverted | Revert / Detach |
-| Remote copy not found | Detach only |
-| Pending | actions disabled |
+### Activating a license
 
-**Visibility**: from the publisher's side, sharing is a simple boolean toggle ("Share": yes/no), available whenever the palette isn't in a "remote is newer, not owned" state. The self/community/org distinction used elsewhere for *browsing* published palettes is **not** a publish-time choice — it's computed on the remote side (creator comparison for self, "shared" flag for community, an organization admin's management for org). See `../01-domain-model/palette.md` §6 for the full breakdown. This is intentional, not a missing feature.
+1. The user enters a license key and instance name, or reviews/validates/unlinks an existing one.
+2. On success, they land on the same "Welcome to Pro" confirmation as a purchase.
 
-Starring is plan-gated: if blocked, it opens a trial/upgrade prompt instead of starring.
+### Everything else
 
-### Pricing
+- **Try Pro**: start a trial, or skip straight to purchase.
+- **Announcements**: a CMS-driven carousel the user pages through, dismissed once seen.
+- **About / Report / Store / Chat / Feedback**: informational or utility dialogs, no publish/payment logic.
+- **Preferences**: opens straight into the language/deep-sync module (see `preferences.md`).
+- **Notification banner**: a toast confirming success/failure of an action taken elsewhere, not something the user opens deliberately.
 
-Opens with 4 billing-period tabs (Week/Month/Year/Lifetime, defaulting to Week), one card per tier with live localized pricing and a hardcoded fallback price if the live pricing call fails or returns empty. The "Best deal" tag on the Monthly tier is static, not computed from actual pricing — confirmed intentional. An "Ultimate" card is always shown. An "Activate" (license key) card or a custom-checkout card appear only when the flow that opened Pricing specifically requested them; a third possible trigger type shows no extra card at all (confirmed legacy, not yet given a target behavior).
+## Rules
 
-Checkout opens in an external browser on some platforms and as an embedded payment iframe on others (Penpot, Framer) — the split isn't about platform capability so much as which platforms allow embedding a third-party payment iframe. Purchase success is detected either via a message from the payment provider's page (embedded flow) or a manual "I've paid" button that polls the subscription status (external-browser flow).
+- Publication's self/community/org visibility is **not** a publish-time choice — it's computed remotely (creator comparison for self, the "shared" flag for community, an org admin's management for org). The publisher only ever sees a single "Share" toggle.
+- Starring a palette is plan-gated; if blocked, it opens a trial/upgrade prompt instead of starring.
+- Pricing's checkout opens in an external browser on some platforms and as an embedded iframe on others (Penpot, Framer) — determined by which platforms allow embedding a third-party payment iframe, not by platform capability in general.
+- The "Best deal" tag on the Monthly pricing tier is static, not computed from actual pricing — intentional.
+- License unlinking is local-only (no network round-trip) if the last validation check errored; otherwise it also deactivates the key remotely.
+- Onboarding is dead: a separate third-party driver library handles onboarding today, not this modal.
+- Completing a purchase while a trial is active suspends the trial — trial and paid plan become mutually exclusive from that point.
 
-### License
+## Acceptance criteria
 
-Lets a user activate a license key (with an instance name) if none is active yet, or view/validate/unlink an existing one. Unlinking is local-only if the last validation check errored (no network round-trip); otherwise it also deactivates the key remotely.
+- [ ] Given a palette the current user owns, when its remote copy is newer, then the modal offers Sync and Detach, not Publish.
+- [ ] Given a palette the current user does not own, when viewing a version that can be pulled, then the modal resolves it toward an "up to date" state rather than offering ownership-only actions.
+- [ ] Given starring is plan-blocked, when the user clicks the star button, then a trial/upgrade prompt opens instead of the palette being starred.
+- [ ] Given the live pricing call fails or returns empty, when Pricing renders, then the hardcoded fallback prices are shown instead of a broken or empty card.
+- [ ] Given Pricing was opened via the "Activate license" trigger, when it renders, then the Activate card is shown; given it was opened via the custom-checkout trigger, then that card is shown instead; given the third trigger type, then no extra card is shown. *(confirmed legacy for the third case — target behavior not yet defined)*
+- [ ] Given a purchase or license activation succeeds, when it completes, then the "Welcome to Pro" confirmation is shown, and any active trial is moved to a suspended state (unless it was never used).
+- [ ] Given the license's last validation check errored, when the user unlinks it, then no network call is made — the key is only cleared locally.
+- [ ] Given the Onboarding modal, when its legacy status-check path fires, then it should not attempt to open it — onboarding is fully owned by the third-party driver library instead. *(currently the check still posts the message even though the handler is disconnected — worth cleaning up the dead path, not just leaving the handler disconnected)*
 
-### Announcements / Onboarding
+## Out of scope
 
-Both are CMS-driven carousels (image/title/tag/description) with "Next" / "Learn more" / "Got it" actions, each persisting a "last seen version" so they don't reappear. **Onboarding is currently unplugged**: it's legacy from a previous implementation — onboarding today is handled by a separate third-party driver library, not by this modal. Treat the Onboarding modal as dead in its current state.
+- Reactivating or redesigning the Onboarding modal — it's confirmed dead, replaced by a third-party library; this spec doesn't propose bringing it back.
+- Defining a target behavior for the third pricing-trigger type showing no card — confirmed legacy, deliberately left unspecified here.
+- Removing the unused publication-specific entry in the generic modal-context enum — confirmed legacy cleanup, not scoped in this pass.
+- Adding credit consumption to any of the 15 modals — the credits system is currently inactive product-wide; this isn't the spec that reactivates it.
 
-### Utility modals
-
-- **About**: plan badge (free/trial/pro/dev), author/license/repo links, third-party attributions.
-- **Report**: name/email/message form sent via the crash-reporting tool's feedback API, with a session replay attached.
-- **Store**: a single cross-sell card today, opens an external link.
-- **Preferences**: a pure container for the language and deep-sync preferences (see `preferences.md`) — no logic of its own.
-- **Try Pro**: primary action starts a trial, secondary skips straight to purchase.
-- **Chat**: embeds a third-party live-chat widget, no business logic.
-- **Welcome to Trial / Welcome to Pro**: confirmation dialogs shown right after a trial starts or a purchase/license activation succeeds.
-- **Feedback**: an external survey embedded as an iframe, no local state.
-- **Notification banner**: a toast, not a modal — fed by a generic "show this message" event most other modals also use to report success/failure.
-
-## 3. Proposal (to-be)
-
-None — consolidation spec.
-
-## 4. Data model
+## Implementation notes
 
 Reuses shared app-level types (`Editor`, `PlanStatus`, `Service`, translation/config context) plus a per-modal plan-gating flag. Publication, Pricing, License, and the Announcements/Onboarding pair each have their own local state shape; the rest are effectively stateless containers. Not duplicated here — see `../04-contracts/events-messages.md` for the analytics payload shapes.
-
-## 5. Impact
 
 - **Outgoing channel**: modals only ever talk to the host sandbox through the same generic messaging channel every other module uses (toast display, trial/pro/license flows, checkout, item storage, "open in browser").
 - **Central dispatch**: which modal is open is decided one level up, not inside the modal components themselves.
 - **Bridges**: trial status and license status are resolved by dedicated startup checks; announcements/onboarding versioning is resolved by its own check.
-- **Stores**: none of the 15 modals reads the app-wide consent, credits, or history state directly — credit logic, where it applies, happens upstream of a modal being opened. Displayed credit balance/renewal date exist in the shared context but aren't shown by any of these modals today.
+- **Stores**: none of the 15 modals reads the app-wide consent, credits, or history state directly — credit logic, where it applies, happens upstream of a modal being opened.
 - **Analytics**: publication actions, pricing views/purchases, sign-in, and announcement/onboarding navigation are tracked; purchase and trial-enablement events are tracked one level above the modals themselves. All gated by analytics being enabled and user consent.
-- **Plan/trial impact on display**: the About badge reflects plan/trial state; starring is paywalled the same way trial/pro prompts are elsewhere; completing a purchase while a trial is active suspends the trial (trial and paid plan become mutually exclusive from that point).
 - **Platforms**: Pricing's checkout embed-vs-external-browser split is the only platform-specific branch identified across the 15 modals; publication is explicitly enabled on Penpot via the shared feature-flag config, not from inside the modal.
 - **Credits**: no credit consumption identified in any of the 15 modals — see the credits note in `../01-domain-model/user-context.md` (currently inactive product-wide, but not to be treated as permanently out of scope).
-
-## 6. Open questions — all answered by the author (2026-07-27)
-
-1. ~~Self/community/org visibility for Publication~~ — **Answered**: intentional. It's a computed *browsing* concept resolved remotely (creator comparison, shared flag, org admin management), not a publish-time toggle. See `../01-domain-model/palette.md` §6.
-2. ~~Onboarding modal possibly dead~~ — **Answered**: confirmed legacy from the previous implementation; onboarding now runs through a third-party driver library instead. Not a priority to document further unless reactivated.
-3. ~~A publication-specific entry in the generic modal-context enum is declared but never used~~ — **Answered**: confirmed legacy, to clean up later — not preparation for an ongoing unification.
-4. ~~Hardcoded fallback prices~~ — **Answered**: intentional, kept on purpose.
-5. ~~Static "Best deal" tag~~ — **Answered**: confirmed static, intended.
-6. ~~The third pricing-trigger type shows no extra card~~ — **Answered**: confirmed legacy, to fix later (no target behavior specified yet).
-7. ~~No credit consumption anywhere in the 15 modals~~ — **Answered**: the credits system is currently inactive product-wide, which explains the total absence of references here — it could become active again, so don't treat this as a permanent design decision.
-8. ~~"About" is plan-gated even though its content isn't really plan-specific~~ — **Answered**: confirmed not necessarily relevant, can be fixed later. Not blocking.
 
 ## See also
 
@@ -101,9 +86,10 @@ Reuses shared app-level types (`Editor`, `PlanStatus`, `Service`, translation/co
 - [Preferences](preferences.md) — the module the Preferences modal simply contains
 - [Bridge messages & analytics events](../04-contracts/events-messages.md) — `PublicationEvent`, `PricingEvent`, `TourEvent`, `LanguageEvent` payloads
 
-## 7. History
+## History
 
 | Date | Change |
 | --- | --- |
 | 2026-07-27 | Created — as-is consolidation from an agent's code reading |
 | 2026-07-30 | Rewritten at a functional level (behavior/edge cases instead of file/line references), internal links added |
+| 2026-08-03 | Reformatted to the Problem/User flow/Rules/Acceptance criteria template; the previously open author Q&A is now folded into Rules/Out of scope since every point was resolved |
