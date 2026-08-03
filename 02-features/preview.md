@@ -64,6 +64,7 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 - [Palette](../01-domain-model/palette.md) — shades and their pre-computed `textContrast` (WCAG/APCA), the source of what this module displays
 - [Scale](scale.md) — the contrast-ratio editing mode shares the same WCAG math as this module's report
 - [Settings](settings.md) — color space and vision-simulation controls also appear in the preview panel
+- [Inspect](inspect.md) — reuses this module's shade grid and contrast report verbatim in a read-only mode
 
 ## History
 

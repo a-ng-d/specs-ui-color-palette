@@ -86,6 +86,8 @@ Formats supported by `generate_code` (primitives only): see [`04-contracts/api-e
 ## See also
 
 - [Glossary](../00-overview/glossary.md) — Palette / Color System / Published palettes terms
-- Features built on this model: [Palettes](../02-features/palettes.md), [Colors](../02-features/colors.md), [Themes](../02-features/themes.md), [Scale](../02-features/scale.md), [Settings](../02-features/settings.md), [Preview](../02-features/preview.md), [Modals](../02-features/modals.md) (publication lifecycle)
+- Features built on this model: [Palettes](../02-features/palettes.md), [Colors](../02-features/colors.md), [Themes](../02-features/themes.md), [Scale](../02-features/scale.md), [Settings](../02-features/settings.md), [Preview](../02-features/preview.md), [Inspect](../02-features/inspect.md), [Export](../02-features/export.md), [Actions](../02-features/actions.md), [Modals](../02-features/modals.md) (publication lifecycle)
+- The app has three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched via a tab bar, see [Actions](../02-features/actions.md)) — Edit hosts Scale/Colors/Themes/Imports/Settings; see [Inspect](../02-features/inspect.md) and [Export](../02-features/export.md) for the other two.
+- Before a palette is opened, it first has to be created: see [Creation](../02-features/creation.md) for the default (random/canvas colors) path and the four alternative seeding methods ([Color wheel](../02-features/color-wheel.md), [AI generation](../02-features/ai-generation.md), [Image extraction](../02-features/image-extraction.md), [ColourLovers import](../02-features/colourlovers-import.md)).
 - How primitives sync to design tools: [`03-platform-bridges/bridge-actions.md`](../03-platform-bridges/bridge-actions.md) and the per-platform specs
 - External surface: [REST API](../04-contracts/api-endpoints.md), [MCP tools](../04-contracts/mcp-tools.md), [bridge messages](../04-contracts/events-messages.md)

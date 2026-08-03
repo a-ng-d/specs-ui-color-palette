@@ -62,6 +62,9 @@ Both views share the same props/state shape: list status (loading/loaded/empty),
 - [Palette](../01-domain-model/palette.md) §6 — local vs. published lifecycle, the bridges named above
 - [Bridge catalog](../03-platform-bridges/bridge-actions.md) — creation/read/deletion bridges behind these actions
 - [Modals](modals.md) — the Publication modal, the remote/published-palette counterpart of this local view
+- [Inspect](inspect.md) — the read-only contrast-report mode "View" is meant to route into, once that distinction is implemented
+- [Creation](creation.md) — the four alternative ways to seed a brand-new palette before it ever reaches this list
+- [Actions](actions.md) — the top bar and mode switcher shown once a palette from this list is open
 
 ## History
 
@@ -72,3 +75,4 @@ Both views share the same props/state shape: list status (loading/loaded/empty),
 | 2026-08-03 | Reformatted to the Problem/User flow/Rules/Acceptance criteria template |
 | 2026-08-04 | Resolved the Open vs. View open question: Open enters edit mode, View allows inspection/export only (not yet implemented) |
 | 2026-08-04 | Resolved the spinner-reset open question: harmless, since the interface blocks concurrent actions — no two rows can race; "Open questions" section removed |
+| 2026-08-04 | Linked [Inspect](inspect.md), the read-only mode "View" is meant to route into — confirmed no such routing exists yet in code |
