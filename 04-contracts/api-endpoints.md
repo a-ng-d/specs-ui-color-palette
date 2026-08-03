@@ -1,6 +1,6 @@
 # Contract — REST API (`api-ui-color-palette`)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-27
 - **Source**: `api-ui-color-palette/README.md`
 

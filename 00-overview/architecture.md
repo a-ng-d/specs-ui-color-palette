@@ -1,6 +1,6 @@
 # Architecture — monorepo overview
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-30
 
 > Reconstructed by reading the READMEs and code of `ui-ui-color-palette`. The dependency graph below is an inference, not a full `package.json` audit across all packages — fix it if any arrows are wrong.

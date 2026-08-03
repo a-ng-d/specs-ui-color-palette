@@ -1,6 +1,6 @@
 # Contract — MCP server (`mcp-ui-color-palette`)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-27
 - **Source**: `mcp-ui-color-palette/README.md` + inventory of tools actually exposed to the `claude-ui-color-palette` plugin
 

@@ -1,6 +1,6 @@
 # Platform — Sketch
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Host repo**: `sketch-ui-color-palette` (`sketch-ui-color-palette.sketchplugin`)
 
 Fill in further with `../TEMPLATE.md` for any development specific to this platform.

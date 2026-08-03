@@ -1,6 +1,6 @@
 # Feature — Preferences (user preferences)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/preferences`
 - **Related spec**: [User context](../01-domain-model/user-context.md)

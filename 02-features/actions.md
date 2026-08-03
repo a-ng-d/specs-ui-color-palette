@@ -1,6 +1,6 @@
 # Feature — Actions (top bar & mode switching)
 
-- **Status**: Draft (as-is behavior, with confirmed edge cases flagged — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with confirmed edge cases flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/Actions.tsx`, `src/ui/subservices/OpenPalette.tsx`
 - **Related spec**: [Palette](../01-domain-model/palette.md), [Colors](colors.md), [Themes](themes.md), [Scale](scale.md), [Settings](settings.md), [Export](export.md), [Inspect](inspect.md), [Palettes](palettes.md), [Modals](modals.md)

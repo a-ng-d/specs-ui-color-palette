@@ -1,6 +1,6 @@
 # Feature — Scale (scales & presets)
 
-- **Status**: Draft (as-is behavior, with confirmed dead code and tracking gaps flagged — see below)
+- **Status**: Implemented (as-is behavior, with confirmed dead code and tracking gaps flagged — see below)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/scale`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§4)

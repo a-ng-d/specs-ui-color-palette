@@ -1,6 +1,6 @@
 # Feature — AI generation (prompt-based palette seeding)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/GenAI.tsx`
 - **Related spec**: [Creation](creation.md) (overview, shared cost model), [Colors](colors.md)

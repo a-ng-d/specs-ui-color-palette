@@ -1,6 +1,6 @@
 # Platform — Framer
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Host repo**: `framer-ui-color-palette`
 
 Fill in further with `../TEMPLATE.md` for any development specific to this platform.

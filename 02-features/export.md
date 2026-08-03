@@ -1,6 +1,6 @@
 # Feature — Export (code & token export)
 
-- **Status**: Draft (as-is behavior, with a confirmed gating bug flagged — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with a confirmed gating bug flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modes/ExportPalette.tsx`, `src/ui/contexts/Export.tsx`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§8), [Color System](../01-domain-model/color-system.md), [Settings](settings.md), [Inspect](inspect.md)

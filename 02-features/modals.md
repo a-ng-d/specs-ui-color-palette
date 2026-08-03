@@ -1,6 +1,6 @@
 # Feature — Modals
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/modals/` (15 modals)
 - **Related spec**: [User context](../01-domain-model/user-context.md), [Palette](../01-domain-model/palette.md) (§6, publication lifecycle)

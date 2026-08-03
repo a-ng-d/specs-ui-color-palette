@@ -1,6 +1,6 @@
 # Domain model — Palette
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-27
 - **Source**: `engine-ui-color-palette` (`Data` class), `ui-ui-color-palette/src/types/{app,messages}.ts`, `src/bridges/`, `src/stores/palette.ts` / `localPalettes.ts`
 

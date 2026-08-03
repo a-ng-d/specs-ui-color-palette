@@ -1,6 +1,6 @@
 # Feature — Preview (preview & contrast report)
 
-- **Status**: Draft (as-is behavior, with two confirmed bugs flagged — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with two confirmed bugs flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/preview`
 - **Related spec**: [Palette](../01-domain-model/palette.md), [User context](../01-domain-model/user-context.md)

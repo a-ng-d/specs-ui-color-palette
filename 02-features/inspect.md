@@ -1,6 +1,6 @@
 # Feature — Inspect (contrast report)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modes/InspectPalette.tsx`
 - **Related spec**: [Preview](preview.md), [Palettes](palettes.md), [Export](export.md)

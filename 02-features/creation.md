@@ -1,6 +1,6 @@
 # Feature — Creation (how a palette gets seeded)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/App.tsx` (service router), `src/ui/services/ManagePalette.tsx`, and the four creation services documented separately: [Color wheel](color-wheel.md), [AI generation](ai-generation.md), [Image extraction](image-extraction.md), [ColourLovers import](colourlovers-import.md)
 - **Related spec**: [Palettes](palettes.md), [Colors](colors.md), [Actions](actions.md)

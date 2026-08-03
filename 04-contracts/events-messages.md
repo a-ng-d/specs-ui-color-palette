@@ -1,6 +1,6 @@
 # Contract — Bridge messages & analytics events
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-27
 - **Source**: `ui-ui-color-palette/src/types/{messages,events}.ts`
 

@@ -1,6 +1,6 @@
 # Feature — Settings (palette settings)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/settings`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§2, §3, §5)

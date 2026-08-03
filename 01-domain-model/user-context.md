@@ -1,6 +1,6 @@
 # Domain model — User context
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-27
 - **Source**: `ui-ui-color-palette/src/types/{app,config,user}.ts`, `src/bridges/checks/`, `src/bridges/plans/enableTrial.ts`, `src/stores/{consent,credits,preferences}.ts`
 

@@ -1,6 +1,6 @@
 # Platform — Figma / FigJam
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Host repo**: `figma-ui-color-palette`
 
 Fill in further with `../TEMPLATE.md` for any development specific to this platform (anything that only exists here, or diverges from the common behavior described in `02-features/`).

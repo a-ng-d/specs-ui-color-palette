@@ -1,6 +1,6 @@
 # Feature — ColourLovers import (third-party palette seeding)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/Explore.tsx`
 - **Related spec**: [Creation](creation.md) (overview, shared cost model), [Palettes](palettes.md)

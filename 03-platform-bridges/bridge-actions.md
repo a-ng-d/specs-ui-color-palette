@@ -1,6 +1,6 @@
 # Bridge catalog
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-30
 - **Source**: `ui-ui-color-palette/src/bridges/`
 

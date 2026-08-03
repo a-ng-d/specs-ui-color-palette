@@ -1,6 +1,6 @@
 # Feature — Color wheel (harmony-based palette seeding)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/ColorWheel.tsx`
 - **Related spec**: [Creation](creation.md) (overview, shared cost model), [Colors](colors.md)

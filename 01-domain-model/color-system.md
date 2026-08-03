@@ -1,6 +1,6 @@
 # Domain model — Color System (semantic layer)
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-30
 - **Source**: `engine-ui-color-palette` README (§ Color System & Semantic Tokens), `System` / `Code` classes
 

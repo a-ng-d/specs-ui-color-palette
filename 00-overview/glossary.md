@@ -1,6 +1,6 @@
 # Glossary
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Last updated**: 2026-07-27
 
 Domain terms, as used in the code (`ui-ui-color-palette`, `engine-ui-color-palette`). If a term here diverges from the code, the code wins — fix this file.

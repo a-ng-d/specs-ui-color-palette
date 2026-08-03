@@ -1,6 +1,6 @@
 # Feature — Colors (source colors editor)
 
-- **Status**: Draft (as-is behavior, with a confirmed validation gap flagged — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with a confirmed validation gap flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/contexts/Colors.tsx`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§2), [Scale](scale.md), [Themes](themes.md), [Settings](settings.md)

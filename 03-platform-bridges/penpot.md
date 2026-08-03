@@ -1,6 +1,6 @@
 # Platform — Penpot
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Host repo**: `penpot-ui-color-palette`
 
 Fill in further with `../TEMPLATE.md` for any development specific to this platform.

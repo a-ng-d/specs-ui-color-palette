@@ -1,6 +1,6 @@
 # Feature — Themes (palette themes)
 
-- **Status**: Draft (as-is behavior, with confirmed duplication flagged — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with confirmed duplication flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/contexts/Themes.tsx`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§3), [Scale](scale.md), [Colors](colors.md), [Settings](settings.md), [Preview](preview.md)

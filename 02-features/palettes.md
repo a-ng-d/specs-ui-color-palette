@@ -1,6 +1,6 @@
 # Feature — Palettes (local & remote management)
 
-- **Status**: Draft (as-is behavior, with confirmed fixes pending — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with confirmed fixes pending — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modules/palettes`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§6), [Bridge catalog](../03-platform-bridges/bridge-actions.md)

@@ -1,6 +1,6 @@
 # Feature — Image extraction (dominant-color palette seeding)
 
-- **Status**: Draft (as-is behavior, with a confirmed silent-failure gap flagged — see Acceptance criteria)
+- **Status**: Implemented (as-is behavior, with a confirmed silent-failure gap flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/ImagePalette.tsx`
 - **Related spec**: [Creation](creation.md) (overview, shared cost model), [Colors](colors.md)
