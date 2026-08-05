@@ -60,6 +60,7 @@ Reuses the engine's `ColorConfiguration` and `ShiftConfiguration`. Unlike most o
 - [Scale](scale.md) — the palette-wide hue/chroma shift sliders that this module's per-color shifts offset from
 - [Themes](themes.md) — the sibling module sharing the same file location and the same hex-validation gap
 - [Settings](settings.md) — the analogous hex-validation gap noted for text-color pickers, now confirmed here
+- [Hue/Chroma Distribution](hue-chroma-distribution.md) — Draft spec adding a `LINEAR`/`HYPERBOLA`/`FREE` curve on top of this module's per-color hue/chroma shift
 
 ## History
 

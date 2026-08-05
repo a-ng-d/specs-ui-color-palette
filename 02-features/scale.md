@@ -68,6 +68,7 @@ Reuses the engine's `PresetConfiguration`, `ScaleConfiguration` (stop → lightn
 - [Preview](preview.md) — the contrast-ratio editing mode uses the same WCAG math as the contrast report
 - [Bridge messages & analytics events](../04-contracts/events-messages.md) — `ScaleMessage` / `ScaleEvent` payload shape
 - [Colors](colors.md), [Themes](themes.md) — the sibling source-color and theme editors, same full-payload bridge pattern
+- [Hue/Chroma Distribution](hue-chroma-distribution.md) — Draft spec adding a `LINEAR`/`HYPERBOLA`/`FREE` curve on top of this module's global hue/chroma shift sliders
 
 ## History
 
