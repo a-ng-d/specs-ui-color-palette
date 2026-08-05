@@ -37,6 +37,18 @@ Technical detail relevant to building this — reference `01-domain-model/` rath
 - **Credits / plan** (`config.fees`, `checkCredits`): does the action consume credits?
 - **Analytics** (`types/events.ts`): new Mixpanel event to add?
 
+## Locales
+
+Every user-facing string this feature introduces or touches, checked against the live Tolgee project (`UI Color Palette・Plugins`) rather than invented fresh — search existing keys before proposing new ones, and match the project's naming convention (flat keys, dot-prefixed grouping, no namespaces — e.g. `modes.edit`, `themes.actions.new`).
+
+| Text | Where | Tolgee key | Status |
+| --- | --- | --- | --- |
+| | | | New / Reuse existing key / Unread (design not final) |
+
+- Note any string that's **shipped default content** rather than UI chrome (e.g. a seeded example's labels) — these still need keys, the same way existing default names (e.g. `themes.defaultName`) are already translated.
+- Flag anything read from the design file itself (Figma annotations, dev-mode descriptions) as the intended source of copy, separately from this table, if it couldn't be confirmed at spec time.
+- Don't finalize keys unilaterally — list candidates here and have them reviewed (keep / rename / drop) before creation.
+
 ## See also
 
 - Related specs, linked both ways.
