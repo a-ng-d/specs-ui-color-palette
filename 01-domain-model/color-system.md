@@ -1,7 +1,7 @@
 # Domain model — Color System (semantic layer)
 
 - **Status**: Implemented
-- **Last updated**: 2026-07-30
+- **Last updated**: 2026-08-05
 - **Source**: `engine-ui-color-palette` README (§ Color System & Semantic Tokens), `System` / `Code` classes
 
 ## 1. Position in the pipeline
@@ -39,9 +39,11 @@ bindings: Array<{
   description?: string
   ref: string                  # primitive shade reference, format 'colorId:stop', e.g. 'blue:500'
   overrides?: { [themeId]: string }   # alternate ref per theme, e.g. { dark: 'blue:400' }
-  isExcluded?: boolean          # excluded from code generation if true, but still resolved internally
+  isExcluded?: boolean          # if true, the binding is never resolved at all (see below) — not just excluded from output
 }>
 ```
+
+**Correction (2026-08-05)**: `System.resolveToken()` short-circuits on `isExcluded` — when true, every theme's `refs` entry is forced to `{ themeId, shadeId: null }`, the exact same code path as "no binding exists," without parsing `ref`/`overrides` at all. So an excluded token is not "still resolved internally and only hidden at export" (an earlier, incorrect description of this field) — it is **never resolved**, and consequently never appears in code, variables, tokens, any export, or generated documentation. Confirmed as intended engine behavior by the requester (the engine is the source of truth here). See [Structure](../02-features/structure.md) for where this was caught and confirmed.
 
 ## 4. MCP / API contract
 
@@ -52,7 +54,7 @@ bindings: Array<{
 ## 5. What's still to be specified (do it when the need arises)
 
 - Binding validation rules (an invalid `ref`, a `path` that matches no member of the schema — current behavior not documented here, to check in `engine-ui-color-palette/src/modules/system/system.ts` the day it needs to evolve).
-- Interaction between `isExcluded` and per-theme overrides (does an excluded token still have its overrides resolved internally?).
+- ~~Interaction between `isExcluded` and per-theme overrides~~ — resolved (2026-08-05): `isExcluded` short-circuits before any `ref`/`overrides` parsing happens, so overrides are never resolved for an excluded token either. See the correction under §3 above.
 
 ## See also
 
