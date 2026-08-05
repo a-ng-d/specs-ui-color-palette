@@ -67,6 +67,7 @@ None of the four settings sections talks to a bridge or store directly — every
 - [Palettes](palettes.md) — the Danger Zone deletion action, local-listing counterpart
 - [Colors](colors.md) — individual source-color operations, out of scope here
 - [Themes](themes.md) — this module's vision-simulation control duplicates a second, independent one living per-theme in `Themes.tsx`
+- [Hue/Chroma Distribution](hue-chroma-distribution.md) — Draft spec introducing a Scale-side hue/chroma shift curve and a separate new "velocity" control; explicitly confirmed **not** related to this module's `algorithmVersion` ("Chroma velocity") gamut-mapping option, despite naming similarities — that control stays untouched
 
 ## History
 

@@ -60,6 +60,7 @@ Every file links back here and sideways to what it depends on — start anywhere
 - [Colors](02-features/colors.md) — source-color editor (name, hex/LCH, hue/chroma shift, alpha, description)
 - [Themes](02-features/themes.md) — theme list, the "active theme" mechanism read by Scale/Preview/Settings
 - [Scale](02-features/scale.md) — presets, raw vs. contrast-ratio editing, custom stops, easing
+- [Hue/Chroma Distribution](02-features/hue-chroma-distribution.md) — non-linear (`LINEAR`/`HYPERBOLA`/`FREE`) shift curves, extending Scale's and Colors' hue/chroma shift
 - [Preview](02-features/preview.md) — contrast scoring, the per-color contrast report, preview settings
 - [Settings](02-features/settings.md) — palette name/description, global color settings, deletion
 - [Preferences](02-features/preferences.md) — language, deep sync with the host editor
