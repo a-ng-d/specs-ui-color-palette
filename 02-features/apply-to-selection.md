@@ -26,55 +26,69 @@ Trying out a palette against an already-drawn design (a page, an illustration, a
 - **Client-side only**: luminance computation and the nearest-shade match happen without any server/API call — confirmed by the ticket. The palette's shades are already available locally (`PaletteDataShadeItem.hex` and other color-space fields, see `engine-ui-color-palette/src/types/data.types.ts`); luminance for both the detected canvas color and each candidate shade can be computed the same way contrast scoring already does elsewhere in the engine (`chroma(color).luminance()`), but the matching itself for this feature runs in the UI/bridge layer, not through an engine call.
 - **Selection-scoped, non-destructive to the palette**: this only recolors existing nodes on the canvas — it never creates new nodes and never touches the palette itself (`base`/`themes` are untouched, consistent with how [Color System (feature)](color-system.md) frames its own semantic layer as additive/non-destructive).
 - **Independent from the semantic/template-based simulation**: per the ticket, this quick mode must not interfere with or share implementation/state with that separate (not-yet-built) feature.
-- Presumed theme-scoping: matches against the palette's **currently active theme's** shades only (consistent with how vision-simulation/text colors are theme-scoped elsewhere, see [Settings](settings.md)) — not confirmed against the ticket text itself, which doesn't mention multi-theme behavior; the mockup shows a theme-switcher dropdown ("Light ▾") nearby, in [Preview](preview.md)'s existing theme switcher, but whether this action reads it is unconfirmed (see Open questions).
+- **Theme-scoping — confirmed**: matches against the palette's **currently active theme's** shades only, not all themes at once.
+- **Traversal scope — confirmed, no exceptions**: every object within the selection, at any nesting depth (nested components/instances included), whose fill or border/stroke is a solid or gradient color is processed — in short, every hex/RGB value found. Gradients are in scope: each color stop is matched and replaced individually, not skipped. Image fills are naturally out of scope, since they carry no solid/gradient color value to read.
+- **Reversibility — confirmed**: relies entirely on the platform's **native undo** (Cmd/Ctrl+Z) — no dedicated in-app "revert to original" action or stored snapshot.
+- **Plan gating — confirmed**: this is a **Pro** feature, consistent with the existing "Sync with local styles/variables/tokens" entries in the same dropdown. Unlike those three, it's **plan-gated only — no credit consumption**: confirmed free to run repeatedly once on a Pro plan.
+- **Dropdown — confirmed**: "Apply to document…" is the existing "Synchronize…" dropdown (`actions.sync`), **renamed**, with "Apply to selection" added as a new first entry above the three existing sync actions (styles/variables/tokens) — not a new, separate menu.
 
 ## Acceptance criteria
 
-- [ ] Given a selected element (page, illustration, or small component) containing multiple colors, when the user activates "Apply to selection," then every detected color is replaced by a palette color, chosen by closest luminance match.
+- [ ] Given a selected element (page, illustration, or small component) containing multiple colors, when the user activates "Apply to selection," then every object in the selection, at any nesting depth, with a solid or gradient fill/border is replaced by a palette color from the active theme, chosen by closest luminance match — with no exceptions for depth or object type.
+- [ ] Given a gradient fill or border, when "Apply to selection" runs, then each of its color stops is matched and replaced individually, not skipped.
 - [ ] Given the quick simulation runs, then luminance computation and palette mapping happen entirely client-side, with no server/API call.
 - [ ] Given the quick simulation's replacement, then no semantic role (background/text/border/state) is considered — luminance is the sole criterion.
-- [ ] Given a quick-simulation result, then it is reversible — the user can return the selection to its original colors at any time.
+- [ ] Given a quick-simulation result, when the user triggers undo (Cmd/Ctrl+Z), then the selection returns to its original colors — no dedicated in-app "revert" action exists or is needed.
 - [ ] Given the semantic/template-based simulation (a separate, future feature), then this quick mode neither interferes with it nor shares its implementation or state.
-- [ ] Given a palette with no semantic layer or unrelated feature active, when "Apply to selection" runs, then there is no regression to existing sync-to-styles/sync-to-variables behavior in the same dropdown.
+- [ ] Given a user on a non-Pro plan, when they try "Apply to selection," then it's blocked with a trial/upgrade prompt, consistent with the gating already applied to "Sync with local styles/variables/tokens" in the same dropdown.
+- [ ] Given the renamed "Apply to document…" dropdown, then it still contains the three existing sync actions (styles/variables/tokens) unchanged, with "Apply to selection" added as a new first entry — no regression to the existing sync behavior.
 
 ## Out of scope
 
 - The semantic/template-based simulation itself — explicitly called out by the ticket as a distinct, more technical feature, to be scoped and built separately.
-- Any change to the existing "Sync with local styles" / "Sync with local variables" actions beyond however "Apply to selection" is placed alongside them in the same dropdown.
-- Applying across multiple themes at once in a single action — only the active theme is assumed in scope (see Rules and Open questions).
-- Reverse-engineering compound/gradient/image fills into a single "detected color" — traversal depth and fill-type handling aren't specified by the ticket (see Open questions).
+- Any change to the existing "Sync with local styles" / "Sync with local variables" / "Sync with local tokens" actions beyond the dropdown rename and the new first entry.
+- Applying across multiple themes at once in a single action — only the active theme is in scope.
+- A dedicated in-app "revert" action or snapshot mechanism — reversibility relies entirely on the platform's native undo.
+- Image fills — out of scope by construction, since they carry no solid/gradient color value for this action to read.
 
 ## Implementation notes
 
 No implementation exists yet. What has to be built, concretely:
 
-- **Dropdown plumbing**: this doesn't introduce a new top-level mode (unlike [Structure](structure.md)) — it's a new entry in Edit mode's existing top-bar dropdown. `Actions.tsx` already renders `SYNC_LOCAL_STYLES`/`SYNC_LOCAL_VARIABLES`/`SYNC_LOCAL_TOKENS` as individually feature-gated entries in that menu. The Figma mockup shows the dropdown labeled "Apply to document…" with "Apply to selection" as a new first item, followed by "Sync with local styles"/"Sync with local variables" — whether this is the existing sync menu relabeled + extended, or a new separate menu, needs confirming against `Actions.tsx`'s actual current button label (not read in this session) — see Open questions.
-- **New feature flag / message**: needs a new `Feature` entry (e.g. `APPLY_TO_SELECTION`) mirroring `SYNC_LOCAL_STYLES`'s gating pattern, and a new message type (e.g. `APPLY_TO_SELECTION`) dispatched from the UI to the host bridge.
-- **New per-platform bridge work**: unlike the shared `ui-ui-color-palette/src/bridges/`, this needs a **new bridge in each host repo** (`figma-ui-color-palette`, `penpot-ui-color-palette`, `sketch-ui-color-palette`, `framer-ui-color-palette`) to read the current canvas selection via that platform's own API (`figma.currentPage.selection` and equivalents), walk its fills/strokes, and write back replacement colors. No existing bridge does selection/paint introspection today — `gets/getPalettesOnCurrentPage.ts` / `gets/jumpToPalette.ts` are palette-lookup bridges, not paint readers. See [Bridge catalog](../03-platform-bridges/bridge-actions.md).
-- **Nearest-shade matching**: no engine change needed. `PaletteDataShadeItem` (`data.types.ts`) already exposes `hex` (and every other color-space representation) per shade; luminance for the detected canvas color and each candidate shade can reuse the same approach contrast scoring already uses elsewhere (`chroma(color).luminance()`, see `engine-ui-color-palette/src/modules/contrast/contrast.ts` / `color.ts`) — but per the ticket, the matching itself runs client-side in the UI/bridge layer, not through an engine/API call.
-- **Reversibility**: no existing mechanism identified for "revert a selection to its pre-apply colors." Figma's own sync/generation bridges rely on `scheduleSaveVersion` (native version history) as their undo-safety net — whether this action can lean on the same native undo stack (Cmd/Ctrl+Z) or needs its own explicit "revert"/snapshot mechanism is unresolved (see Open questions).
+- **Dropdown plumbing — confirmed direction**: this doesn't introduce a new top-level mode (unlike [Structure](structure.md)) — the existing "Synchronize…" dropdown (Tolgee key `actions.sync`) in `Actions.tsx`, which already renders `SYNC_LOCAL_STYLES`/`SYNC_LOCAL_VARIABLES`/`SYNC_LOCAL_TOKENS` as individually feature-gated entries, gets relabeled "Apply to document…" and gains "Apply to selection" as a new first entry above the three existing ones. No new menu component needed, just a new gated entry plus the trigger-label rename.
+- **New feature flag / message**: needs a new `Feature` entry (e.g. `APPLY_TO_SELECTION`) mirroring `SYNC_LOCAL_STYLES`'s Pro-gating pattern (`isBlocked()` check, trial/upgrade prompt), and a new message type (e.g. `APPLY_TO_SELECTION`) dispatched from the UI to the host bridge.
+- **New per-platform bridge work**: unlike the shared `ui-ui-color-palette/src/bridges/`, this needs a **new bridge in each host repo** (`figma-ui-color-palette`, `penpot-ui-color-palette`, `sketch-ui-color-palette`, `framer-ui-color-palette`) to read the current canvas selection via that platform's own API (`figma.currentPage.selection` and equivalents), **recursively walk every descendant node** (confirmed: no depth exception), inspect each node's fills/strokes for solid or gradient paints, and write back replacement colors per matched shade. No existing bridge does selection/paint introspection today — `gets/getPalettesOnCurrentPage.ts` / `gets/jumpToPalette.ts` are palette-lookup bridges, not paint readers. See [Bridge catalog](../03-platform-bridges/bridge-actions.md).
+- **Nearest-shade matching**: no engine change needed. `PaletteDataShadeItem` (`data.types.ts`) already exposes `hex` (and every other color-space representation) per shade of the active theme; luminance for the detected canvas color and each candidate shade can reuse the same approach contrast scoring already uses elsewhere (`chroma(color).luminance()`, see `engine-ui-color-palette/src/modules/contrast/contrast.ts` / `color.ts`) — but per the ticket, the matching itself runs client-side in the UI/bridge layer, not through an engine/API call. For gradients, each stop's color is matched independently (confirmed) rather than the gradient being treated as a single unit or skipped.
+- **Reversibility — confirmed, simpler than assumed**: relies entirely on the platform's native undo stack (Cmd/Ctrl+Z) — no explicit "revert"/snapshot logic to build, unlike Figma's sync/generation bridges which additionally call `scheduleSaveVersion` for their own safety net (not needed here, since this action doesn't touch the palette or generate a document).
 - **Broader editor surface than Structure**: the ticket's editor list (Figma, FigJam, Buzz, Penpot, Sketch, Framer) is wider than [Structure](structure.md)'s (which excluded FigJam/Buzz) — this action is expected to work in FigJam (boards, not file canvases) and Buzz (browser-based editor), which likely need their own selection/paint APIs distinct from Figma's file-canvas one.
-- **Analytics / Credits**: not specified by the ticket — to define alongside the build (a `trackActionEvent`-style event, and whether this consumes credits the way document generation/sync already do, see [Actions](actions.md)).
+- **Credits — confirmed Pro-gating only, no credit consumption**: this is a Pro feature, per the requester — same plan-gating pattern as `SYNC_LOCAL_STYLES`/`SYNC_LOCAL_VARIABLES`/`SYNC_LOCAL_TOKENS` (`isBlocked()` check, trial/upgrade prompt). Unlike those three, it does **not** consume credits — confirmed no `plan.credits.fees.applyToSelection`-style fee is needed; free to use as many times as wanted once the plan is active.
+- **Analytics**: not specified by the ticket — to define alongside the build (a `trackActionEvent`-style event, mirroring how sync actions are tracked, see [Actions](actions.md)).
 
 ## Locales
 
-Not yet checked against the Tolgee project (`UI Color Palette・Plugins`, id `2`) in this session — the Figma mockup's dropdown text ("Apply to selection," plus the button label itself, "Apply to document…") should be searched there before creating new keys, following the same process used for [Structure](structure.md)'s copy inventory.
+Confirmed via the Tolgee MCP — project `UI Color Palette・Plugins` (id `2`). No key exists yet for "Apply to selection" or "Apply to document" (searched directly, zero matches both times) — new keys needed. The dropdown's current trigger label **does** already exist: `actions.sync` = "Synchronize…" — the strongest candidate to rename/replace with "Apply to document…", rather than adding a parallel new key, since it's this exact button being relabeled (confirmed in Rules). All three existing sync entries (`actions.syncLocalStyles`, `actions.syncLocalVariables`, `actions.syncLocalTokens`) stay as-is and unaffected.
 
 | Text as seen in the mockup | Where | Tolgee key | Status |
 | --- | --- | --- | --- |
-| "Apply to selection" | New dropdown entry | — | Unread — not yet searched in Tolgee |
-| "Sync with local styles" | Existing dropdown entry | `actions.syncLocalStyles` | Likely **reuse** (exists already, see [Structure](structure.md)'s inventory for the sibling `actions.syncLocalVariables`) |
-| "Sync with local variables" | Existing dropdown entry | `actions.syncLocalVariables` | **Reuse** — confirmed to exist (see [Structure](structure.md)) |
-| "Apply to document…" (button label, if new/renamed) | Top-bar dropdown trigger | — | Unread — not yet searched in Tolgee, and not yet confirmed whether this label is new or an existing one being reused |
+| "Apply to selection" | New dropdown entry | — | New — searched, no existing key |
+| "Apply to document…" | Dropdown trigger (renamed) | `actions.sync` (currently "Synchronize…") | **Reuse the key, update its value** — this is the same button being relabeled, not a new one |
+| "Sync with local styles" | Existing dropdown entry, unchanged | `actions.syncLocalStyles` | **Reuse**, no change |
+| "Sync with local variables" | Existing dropdown entry, unchanged | `actions.syncLocalVariables` | **Reuse**, no change |
+| "Sync with local tokens" | Existing dropdown entry, unchanged | `actions.syncLocalTokens` | **Reuse**, no change |
+| Trial/upgrade prompt for a blocked "Apply to selection" attempt | Shared upsell modal | `proPlan.trial.title`/`.message`/`.cta`/`.option` | **Reuse** — confirmed generic, not per-feature: this is the same shared trial/upgrade modal every blocked action in the app already triggers (see [Actions](actions.md)'s "generic `GET_TRIAL`/`GET_PRO` upsell on any blocked action"), no new copy needed |
 
 ## Open questions
 
-- Is "Apply to document…" the existing sync menu (styles/variables/tokens) relabeled and extended with "Apply to selection," or a new, separate menu? The mockup only shows 2 of the 3 known sync items (styles, variables) alongside it — is "tokens" omitted for this specific mockup/platform, or dropped from this menu entirely?
-- Reversibility mechanism: native undo only, or a dedicated "revert to original" action/toggle?
-- Does the action match against the active theme only, or can the user pick which theme's shades to match against (a "Light ▾" dropdown appears nearby in the mockup, but it's [Preview](preview.md)'s existing theme switcher — unclear if this action reads it)?
-- What counts as "multiple colors" and how deep does traversal go — nested components/instances, gradients, images (likely skipped, flat fills only?) — not specified by the ticket.
-- Credits/plan gating: is this plan-gated/credit-consuming like sync-to-styles/variables, or free for all plans? Not specified by the ticket.
-- Exact Tolgee key names — not yet searched in this session (see Locales).
+- ~~Is "Apply to document…" the existing sync menu relabeled and extended, or a new menu?~~ — resolved: existing `actions.sync` dropdown, renamed, with a new first entry. See Rules.
+- ~~Reversibility mechanism?~~ — resolved: native undo only.
+- ~~Active theme only, or theme-selectable?~~ — resolved: active theme only.
+- ~~Traversal depth / what counts as "multiple colors"?~~ — resolved: every object in the selection at any depth, every solid/gradient fill or border, no exceptions.
+- ~~Credits/plan gating?~~ — resolved: Pro-gated, same pattern as the sync actions.
+- ~~Exact Tolgee key names?~~ — resolved: searched, see Locales. `actions.sync` reused for the renamed trigger; "Apply to selection" needs a new key.
+- ~~Does this also consume credits in addition to being Pro-gated?~~ — resolved: no, plan-gating only, free to run repeatedly once on a Pro plan.
+- ~~Exact Tolgee key for the Pro/upgrade-prompt copy?~~ — resolved: reuses the shared generic `proPlan.trial.*` upsell modal, no new copy. See Locales.
+
+*(none remaining — all open questions from this spec have been resolved as of 2026-08-06)*
 
 ## See also
 
@@ -89,3 +103,5 @@ Not yet checked against the Tolgee project (`UI Color Palette・Plugins`, id `2`
 | Date | Change |
 | --- | --- |
 | 2026-08-05 | Created as Draft — scopes "Apply to selection" (Notion ticket POR-645, "Simulation rapide de l'application de la palette sur un élément sélectionné") from the ticket's acceptance criteria and the Figma mockup (`UICP Screens`, node `4972:29275`). No existing UI/bridge code found for this (confirmed via grep: no `APPLY_TO_SELECTION`, no luminance-based palette matching anywhere in the codebase) — genuinely unbuilt, several open questions flagged pending clarification (exact dropdown composition, reversibility mechanism, theme scoping, traversal depth). |
+| 2026-08-06 | Resolved all six open questions: the dropdown is the existing "Synchronize…" menu (`actions.sync`) renamed to "Apply to document…" with a new first entry, not a new menu; reversibility is native undo only, no dedicated revert action; matches the active theme only; traversal is every object in the selection at any depth, every solid/gradient fill or border, no exceptions (gradient stops matched individually); confirmed Pro-gated. Searched Tolgee directly: no existing key for "Apply to selection" (new key needed) or "Apply to document" (reuses `actions.sync`, value updated); the three existing sync-entry keys are unaffected. Remaining open point: whether this also consumes credits in addition to being Pro-gated. |
+| 2026-08-06 | Confirmed no credit consumption — plan-gating (Pro) only. Confirmed the trial/upgrade prompt reuses the app's shared generic `proPlan.trial.*` modal, no per-feature copy needed. No open questions remain in this spec. |
