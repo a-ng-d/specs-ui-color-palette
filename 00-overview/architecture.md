@@ -1,9 +1,9 @@
 # Architecture — monorepo overview
 
 - **Status**: Implemented
-- **Last updated**: 2026-07-30
+- **Last updated**: 2026-09-21 — `web-ui-color-palette` row, dependency graph (`ui --> web` edge), and §4 corrected to reflect its confirmed implementation (routing, storage, sharing links); Chrome Extension and Web App team spaces remain the only unimplemented planned surfaces
 
-> Reconstructed by reading the READMEs and code of `ui-ui-color-palette`. The dependency graph below is an inference, not a full `package.json` audit across all packages — fix it if any arrows are wrong.
+> Reconstructed by reading the READMEs and code of `ui-ui-color-palette`. The dependency graph below is an inference, not a full `package.json` audit across all packages — fix it if any arrows are wrong. **Exception**: the `web-ui-color-palette` row/edges were corrected 2026-09-21 by reading `web-ui-color-palette` source directly (not inferred) — see [Web App](../03-platform-bridges/web-app.md).
 
 ## 1. Package map
 
@@ -21,7 +21,7 @@ The **UI Color Palette** product is spread across ~13 repos under `/Users/a_ng_d
 | `penpot-ui-color-palette` | Penpot plugin host.                                                                                                                                                                                                                                                                  | Penpot Plugin API                                   | `ui-ui-color-palette`                                                          | Penpot users                                                                                                |
 | `sketch-ui-color-palette` | Sketch plugin host.                                                                                                                                                                                                                                                                  | Sketch API                                          | `ui-ui-color-palette`                                                          | Sketch users                                                                                                |
 | `framer-ui-color-palette` | Framer plugin host.                                                                                                                                                                                                                                                                  | Framer Plugin API                                   | `ui-ui-color-palette`                                                          | Framer users                                                                                                |
-| `web-ui-color-palette`    | Standalone web application.                                                                                                                                                                                                                                                          | —                                                   | `engine-ui-color-palette` (installed npm package, direct dependency), `api-ui-color-palette` (assumed) | Web users                                                                                                   |
+| `web-ui-color-palette`    | Standalone, server-rendered web application. **Implemented.** Exposes the plugins' top-level services as routes (`/manage`, `/gen`, `/extract`, `/wheel`, `/explore`) and adds URL-based palette sharing — see [Web App](../03-platform-bridges/web-app.md), [Sharing links](../02-features/sharing-links.md). Still gaining: team spaces (see [Team spaces](../02-features/team-spaces.md), not started). | Preact (reuses `ui-ui-color-palette`'s service components directly, SSR via `entry-server.tsx`/`entry-client.tsx`), Vite, IndexedDB (local, account-free palette store — sandboxed plugin hosts use `localStorage` instead, see Web App) | `engine-ui-color-palette` (installed npm package, direct dependency), `api-ui-color-palette`, `ui-ui-color-palette` (confirmed dependency — mounts its service components directly, not a themed reimplementation) | Web users                                                                                                   |
 | `docs-ui-color-palette`   | **Public/user-facing** documentation, by surface (`api/`, `claude/`, `figma/`, `framer/`, `mcp/`, `penpot/`, `sketch/`, `legal/`).                                                                                                                                                   | —                                                   | —                                                                              | End users                                                                                                   |
 | `specs-ui-color-palette`  | This folder. **Internal engineering** documentation.                                                                                                                                                                                                                                 | —                                                   | —                                                                              | Dev team                                                                                                    |
 
@@ -56,6 +56,7 @@ flowchart LR
   ui --> penpot
   ui --> sketch
   ui --> framer
+  ui --> web
   authw -.auth/session.-> ui
   authw -.auth/session.-> api
 ```
@@ -67,7 +68,12 @@ flowchart LR
 
 Both paths converge on the same [API](../04-contracts/api-endpoints.md) and the same engine — this is what guarantees identical palette-generation behavior whether the user is in Figma or in Claude.
 
-## 4. What this document deliberately does not cover
+## 4. Planned surfaces (not yet implemented)
+
+- **Chrome Extension** — a new, separate package (proposed `chrome-ui-color-palette`, not yet created), narrow-scope (apply/simulate a palette on a page, contrast audit, page color extraction), hands off to the Web App for full editing. See [`03-platform-bridges/chrome-extension.md`](../03-platform-bridges/chrome-extension.md).
+- **Web App — team spaces only.** `web-ui-color-palette` itself (package map above) and its URL-based palette sharing are **implemented**, confirmed 2026-09-21 — see [`03-platform-bridges/web-app.md`](../03-platform-bridges/web-app.md), [`02-features/sharing-links.md`](../02-features/sharing-links.md). Team spaces (seats) is the one piece of the Web App still not started. See [`02-features/team-spaces.md`](../02-features/team-spaces.md).
+
+## 5. What this document deliberately does not cover
 
 - UI component detail (`ui/components`, `ui/contexts`) — too volatile for a stable spec, document at feature level if needed (see [`02-features/`](../02-features/)).
 - Supabase database schema — document in [`04-contracts/api-endpoints.md`](../04-contracts/api-endpoints.md) if a future development requires it.
