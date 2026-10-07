@@ -19,17 +19,29 @@ Organic growth channel for Yelbolt: a public, no-install surface that lets anyon
 
 ## Routing & SSR
 
-Implementation confirmed by reading `web-ui-color-palette` (`src/entry-server.tsx`/`entry-client.tsx`, `src/pages/*.tsx`, `src/data/webConfig.ts`). The Web App is server-rendered and exposes each of the plugins' top-level services as its own URL-addressable route, rather than an in-app nav-only switch:
+Implementation confirmed by reading `web-ui-color-palette` (`src/App.tsx`, `src/pages/manage.tsx`, `src/pages/combine.tsx`, `src/ui/AppLayout.tsx`, `src/ui/Sidebar.tsx`, `src/data/webConfig.ts`). The Web App is server-rendered and exposes two top-level areas — **Palettes** and **Colors** — as URL-addressable routes, rather than an in-app nav-only switch. The sidebar has exactly two entries (`/palettes`, `/colors`).
 
-| Route | Service (`App.tsx`'s `Service` state, per [Creation](../02-features/creation.md)) | Purpose |
+**Reorganization (2026-10, confirmed by code and the requester):** the four palette-seeding methods (Gen, Extract, Wheel, Explore) used to be four sibling top-level routes next to `/manage`. They are now grouped under a single **Color Combination** area (the `CombineColors` service component, `Service` state `COMBINE`), and the tools are sub-levels of `/colors`. `/manage` was renamed `/palettes`.
+
+| Route | Service (`App.tsx`'s `Service` state) | Purpose |
 | --- | --- | --- |
-| `/manage` | `MANAGE` (default) | Palette management — browse/create/open, the default landing surface. Also the resolution target for share links (see below). |
-| `/gen` | `GEN` | AI color generation — see [AI generation](../02-features/ai-generation.md). |
-| `/extract` | `EXTRACT` | Dominant-color extraction from an uploaded image — see [Image extraction](../02-features/image-extraction.md). |
-| `/wheel` | `WHEEL` | Color-harmony creation via the color wheel — see [Color wheel](../02-features/color-wheel.md). |
-| `/explore` | `EXPLORE` | Third-party palette import used to seed a new palette — see [ColourLovers import](../02-features/colourlovers-import.md). **Naming caution carried over from that spec**: this is *not* the community/published-palette browser (`RemotePalettes.tsx`, still undocumented) — it's one of the four alternative creation methods. **Provider transition, confirmed by the requester**: this route already runs against **Color Hunt** instead of ColourLovers on the Web App — single-select hue filter (no longer cumulative) and results ordered by most-recently-created (no more vote-based ordering, since Color Hunt doesn't expose vote counts). Design-tool plugins still use the original ColourLovers integration; renaming the still-ColourLovers-named code identifiers (fee key, analytics event, `source` tag, module/file name) is pending. Full detail in [ColourLovers import](../02-features/colourlovers-import.md#planned-change--color-hunt-replaces-colourlovers). |
+| `/` | — | Redirects (replace) to `/palettes/local`. Unknown paths fall back to the same redirect. |
+| `/palettes/:segment?` | `MANAGE` | Palette management (renamed from `/manage`). `:segment` is either a **browse slug** — `local` (default, `LOCAL_PALETTES`) or `library` (`REMOTE_PALETTES`) — or a **palette id** (opens that palette in Edit mode, and is the resolution target for share links — see below). Missing segment redirects to `/palettes/local`. |
+| `/colors/:context?` | `COMBINE` | **Color Combination** (`CombineColors`): the alternative ways to seed a new palette's source colors. `:context` is one of the tools below; a missing or unknown value redirects (replace) to the first one, `/colors/gen`. |
+| `/colors/gen` | `COMBINE` / `GEN` | AI color generation — see [AI generation](../02-features/ai-generation.md). |
+| `/colors/extract` | `COMBINE` / `EXTRACT` | Dominant-color extraction from an uploaded image — see [Image extraction](../02-features/image-extraction.md). |
+| `/colors/wheel` | `COMBINE` / `WHEEL` | Color-harmony creation via the color wheel — see [Color wheel](../02-features/color-wheel.md). |
+| `/colors/explore` | `COMBINE` / `EXPLORE` | Third-party palette import used to seed a new palette — see [ColourLovers import](../02-features/colourlovers-import.md). **Naming caution carried over from that spec**: this is *not* the community/published-palette browser (`RemotePalettes.tsx`, still undocumented, now reached through `/palettes/library`) — it's one of the four alternative creation methods. **Provider transition, confirmed by the requester**: this tool already runs against **Color Hunt** instead of ColourLovers on the Web App — single-select hue filter (no longer cumulative) and results ordered by most-recently-created (no more vote-based ordering, since Color Hunt doesn't expose vote counts). Design-tool plugins still use the original ColourLovers integration; renaming the still-ColourLovers-named code identifiers (fee key, analytics event, `source` tag, module/file name) is pending. Full detail in [ColourLovers import](../02-features/colourlovers-import.md#planned-change--color-hunt-replaces-colourlovers). |
+| `/manage`, `/gen`, `/extract`, `/wheel`, `/explore` | — | **Legacy.** `/gen`, `/extract`, `/wheel`, `/explore` are kept as redirects (replace) to their `/colors/<tool>` equivalent. `/manage` has **no** redirect — it falls through to the default and lands on `/palettes/local`, so an old `/manage?id=…` link no longer resolves the palette (see [Sharing links](../02-features/sharing-links.md)). |
 
-Each page mounts the matching `ui-ui-color-palette` service component (`WithConfig`/`WithTranslation`-wrapped, e.g. `ManagePalette`, `Explore`) inside a shared `AppStateContext` — this is the "themed reuse of `ui-ui-color-palette`" branch of the Open questions below, now confirmed by code rather than open: the Web App imports the plugin's own service components directly, it does not re-implement them.
+### URL pattern
+
+- **Palettes**: `/palettes/local`, `/palettes/library`, `/palettes/:id`, and `/palettes/:id?data=<json>` for a data-bearing share link. The palette id is a **path segment** (URI-encoded), no longer an `?id=` query parameter.
+- **Colors**: `/colors/:context` where `:context` is the lowercased `Context` (`gen`, `extract`, `wheel`, `explore`). The tool is a path segment, not state held only in memory, so each tool is deep-linkable and survives a reload.
+- **Address-bar normalization**: once a palette is open, `useSyncPaletteUrl` rewrites the visible path to `/palettes/:id` (query string dropped, hence `data` stripped); with no active palette it returns to `/palettes/local`.
+- **Service ↔ URL sync**: `AppLayout` derives `state.service` from the path (`/palettes*` → `MANAGE`, `/colors*` → `COMBINE`). Conversely, when the service flips from `COMBINE` back to `MANAGE` while on a `/colors*` path (i.e. a "Use this palette" commit), the app routes to `/palettes/local`.
+
+Each page mounts the matching `ui-ui-color-palette` service component (`WithConfig`/`WithTranslation`-wrapped: `ManagePalette` for `/palettes`, `CombineColors` for `/colors`) inside a shared `AppStateContext` — this is the "themed reuse of `ui-ui-color-palette`" branch of the Open questions below, now confirmed by code rather than open: the Web App imports the plugin's own service components directly, it does not re-implement them. The four per-tool page files (`gen.tsx`, `extract.tsx`, `wheel.tsx`, `explore.tsx`) were removed; a single `combine.tsx` page serves all of `/colors/*`.
 
 ## Anchor points to confirm once implementation starts
 
@@ -47,7 +59,7 @@ Each page mounts the matching `ui-ui-color-palette` service component (`WithConf
 - ~~Reuse `ui-ui-color-palette` (themed) vs. a separate implementation~~ — resolved by code, see Routing & SSR: it reuses the shared service components. `00-overview/architecture.md`'s dependency graph (showing `web-ui-color-palette` depending only on the engine/API) needs correcting to also show the `ui-ui-color-palette` dependency.
 - ~~Exact local (account-free, unpublished) storage mechanism for a Web App palette~~ — resolved: IndexedDB, see Anchor points above.
 - ~~Whether `Platform`/`Editor` gain a `web` value now~~ — resolved: `editor: 'web'` already in use in `webConfig.ts`; glossary doc still needs syncing.
-- ~~Exact scope of the ColourLovers → Color Hunt provider transition on `/explore`~~ — resolved by the requester, see the Routing & SSR table and [ColourLovers import](../02-features/colourlovers-import.md#planned-change--color-hunt-replaces-colourlovers) for full detail (data shape, filter rework, ordering, rollout, and the still-pending code-identifier rename).
+- ~~Exact scope of the ColourLovers → Color Hunt provider transition on `/colors/explore`~~ — resolved by the requester, see the Routing & SSR table and [ColourLovers import](../02-features/colourlovers-import.md#planned-change--color-hunt-replaces-colourlovers) for full detail (data shape, filter rework, ordering, rollout, and the still-pending code-identifier rename).
 
 ## See also
 
@@ -62,6 +74,7 @@ _Ordered most recent to oldest._
 
 | Date | Change |
 | --- | --- |
+| 2026-10-07 | Routing reorganized (confirmed by code, `web-ui-color-palette` commits `a945d96`, `9942329`, `0e31de7`, plus the requester): `/manage` renamed `/palettes` (with `local`/`library` browse slugs and palette id as path segment); Gen/Extract/Wheel/Explore regrouped as tools under a new Color Combination area at `/colors/:context` (`COMBINE` service, single `combine.tsx` page); legacy `/gen` `/extract` `/wheel` `/explore` kept as redirects, `/manage` not. Share links now `/palettes/:id?data=…`. Routing table and a new URL pattern subsection rewritten accordingly. |
 | 2026-09-21 | Status changed from Draft to **Implemented** for everything platform-level (routing/SSR, storage, sharing-link mechanism) — the requester confirmed this is live, not a partial/draft implementation. Team spaces and the unverified "iso editing experience" claim remain Draft, called out explicitly in the Status line instead of left implicit. |
 | 2026-09-21 | Requester answered all remaining Open questions from the same-day update: Web App local storage confirmed as IndexedDB (vs. `localStorage` for the plugins' sandboxed hosts), and the ColourLovers → Color Hunt transition on `/explore` confirmed in full (see [ColourLovers import](../02-features/colourlovers-import.md)). No open questions remain in this file as of this entry. |
 | 2026-09-21 | Added Routing & SSR section (confirmed `/manage`, `/gen`, `/extract`, `/wheel`, `/explore` from `web-ui-color-palette` source), resolved three Anchor points/Open questions by reading code (`editor: 'web'`, shared-component reuse, local-store location), and flagged the requester-announced ColourLovers → Color Hunt provider transition on `/explore`. |

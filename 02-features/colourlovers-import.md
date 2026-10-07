@@ -1,9 +1,9 @@
 # Feature — ColourLovers import (third-party palette seeding)
 
-- **Status**: **Forked by platform, confirmed by the requester 2026-09-21.** The Web App's `/explore` already runs against **Color Hunt**; design-tool plugins still run the **ColourLovers** flow described below in User flow/Rules/Acceptance criteria. Full Color Hunt detail in [Planned change](#planned-change--color-hunt-replaces-colourlovers) below — that section is no longer a future intent for the Web App, it's what's live there today; it remains a to-do for the plugins.
+- **Status**: **Forked by platform, confirmed by the requester 2026-09-21.** The Web App's `/colors/explore` already runs against **Color Hunt**; design-tool plugins still run the **ColourLovers** flow described below in User flow/Rules/Acceptance criteria. Full Color Hunt detail in [Planned change](#planned-change--color-hunt-replaces-colourlovers) below — that section is no longer a future intent for the Web App, it's what's live there today; it remains a to-do for the plugins.
 - **Package(s) concerned**: `ui-ui-color-palette`
-- **UI module**: `src/ui/services/Explore.tsx`, exposed on the Web App as the `/explore` route (see [Web App](../03-platform-bridges/web-app.md#routing--ssr))
-- **Related spec**: [Creation](creation.md) (overview, shared cost model), [Palettes](palettes.md), [Web App](../03-platform-bridges/web-app.md) (`/explore` route)
+- **UI module**: `src/ui/services/Explore.tsx`, exposed on the Web App as the `/colors/explore` route (see [Web App](../03-platform-bridges/web-app.md#routing--ssr))
+- **Related spec**: [Creation](creation.md) (overview, shared cost model), [Palettes](palettes.md), [Web App](../03-platform-bridges/web-app.md) (`/colors/explore` route)
 
 ## Problem
 
@@ -86,7 +86,7 @@ Still genuinely open, not addressed by any answer so far:
 
 - [Creation](creation.md) — the shared overview, cost model, and the three sibling methods
 - [Palettes](palettes.md) — the similarly-named but functionally distinct "Explore palettes" community/published-palette browser
-- [Web App](../03-platform-bridges/web-app.md) — where this module is exposed as the `/explore` route, and where the Color Hunt transition was first mentioned
+- [Web App](../03-platform-bridges/web-app.md) — where this module is exposed as the `/colors/explore` route, and where the Color Hunt transition was first mentioned
 
 ## History
 
