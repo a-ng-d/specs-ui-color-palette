@@ -12,7 +12,7 @@ Palette-level settings (name, description, color space, vision simulation, algor
 ## User flow
 
 1. The user edits the palette's name (64-character limit) and description — each commits on blur/valid input.
-2. The user picks a color space (LCH/OKLCH/LAB/OKLAB, HSL/HSV/HSLUV, or CMYK) — a warning appears specifically when HSL is selected.
+2. The user picks a color space (OKLCH/LCH/LAB/OKLAB, HSL/HSV/HSLUV, or CMYK) — a warning appears specifically when HSL is selected.
 3. The user picks a vision-simulation mode (none, or one of 8 color-blindness types) — an indicator appears when a non-default theme is active, signaling this setting actually applies to that **active theme**, not the whole palette.
 4. The user picks an algorithm version (v1/v2/v3).
 5. The user sets light and dark text colors via color pickers — the section title reflects which active theme these apply to.
@@ -22,7 +22,9 @@ Palette-level settings (name, description, color space, vision simulation, algor
 
 - Name is capped at 64 characters client-side; description has no visible validation.
 - Vision-simulation mode and text colors apply to the **currently active theme only**, not the palette as a whole — despite living in a "palette settings" panel.
-- Each color-space option and other settings are individually plan-gated.
+- Each color-space option and other settings are individually plan-gated. OKLCH, LCH and HSL are available on every plan; LAB, OKLAB, HSLUV, HSV and CMYK are `/pro`.
+- The default color space of a new palette is **OKLCH**.
+- Every color space is available on every platform (Figma, Penpot, Sketch, Framer), HSV and CMYK included.
 - Deletion is the only setting behind a confirmation dialog; every other change (including color space and algorithm version) applies immediately.
 - The only explicit format validation anywhere in this module is a hex-color regex on the two text-color pickers.
 - Dark text's displayed default is `#000` — the 3-digit shorthand form of valid black, not a typo (it's distinct from, but equivalent to, `#000000`).
@@ -78,3 +80,4 @@ None of the four settings sections talks to a bridge or store directly — every
 | 2026-08-03 | Reformatted to the Problem/User flow/Rules/Acceptance criteria template |
 | 2026-08-04 | Resolved all four open questions: source-color operations live in `Colors.tsx` (candidate for its own spec), default dark text `#000` confirmed as valid shorthand black (not a typo), default algorithm version `v3` sourced from global config, and settings updates confirmed to genuinely round-trip (store, then document) |
 | 2026-08-04 | Linked new [Colors](colors.md) and [Themes](themes.md) specs; flagged that this module's vision-simulation control duplicates a second, independent one in `Themes.tsx` |
+| 2026-10-28 | Confirmed by the product owner: OKLCH is the default color space; OKLCH, LCH and HSL on every plan, the others `/pro`; every color space on every platform, Penpot included |

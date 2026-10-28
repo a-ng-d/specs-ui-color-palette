@@ -46,7 +46,7 @@ Reuses the engine's `Code`/`Data` classes to turn `base`/`themes` into the selec
 - **Bridges**: export is entirely client-side (no message to the host beyond the generic `POST_MESSAGE` warning toast on a failed clipboard copy); nothing is written back to the document.
 - **Analytics**: every format selection is tracked via `trackExportEvent`, keyed off the clicked option's `data-value` (`ExportEvent['feature']`).
 - **Credits/plan**: gating is per-format and per-color-space (see Rules); no credit consumption identified — plan-based only, same as Settings/Preview.
-- **Platforms**: no platform-specific branching found in this module.
+- **Platforms**: Figma, Penpot and Sketch get every format. Framer gets a narrower set: CSS, SCSS, Less, Tailwind v3/v4 and JSON tokens (native, DTCG); no Apple, Android or CSV. On every platform, the CSS, SCSS and Less color-space choice includes OKLCH.
 
 ## Open questions
 
@@ -64,3 +64,4 @@ Reuses the engine's `Code`/`Data` classes to turn `base`/`themes` into the selec
 | Date | Change |
 | --- | --- |
 | 2026-08-04 | Created — as-is consolidation from reading `ExportPalette.tsx` and `Export.tsx`, following up on a request to cover the missing Export/Inspect modes |
+| 2026-10-28 | Confirmed by the product owner: Framer's export set (SCSS included) and OKLCH in the CSS, SCSS and Less color-space choice |

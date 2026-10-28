@@ -69,6 +69,8 @@ Every file links back here and sideways to what it depends on — start anywhere
 - [Export](02-features/export.md) — the Export mode: code/token export across ~20 formats
 - [Inspect](02-features/inspect.md) — the Inspect mode's read-only contrast report
 - [Actions](02-features/actions.md) — the top bar and Edit/Inspect/Export mode switcher
+- [Structure](02-features/structure.md) — the Structure mode (Taxonomy / Binding / Visualize semantic layer editor)
+- [Structure AI](02-features/structure-ai.md) — Mistral auto-binding and the conversational Structure assistant
 - [Creation](02-features/creation.md) — overview of the four alternative ways to seed a new palette
 - [Color wheel](02-features/color-wheel.md), [AI generation](02-features/ai-generation.md), [Image extraction](02-features/image-extraction.md), [ColourLovers import](02-features/colourlovers-import.md) — the four methods themselves
 
