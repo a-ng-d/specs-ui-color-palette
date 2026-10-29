@@ -19,7 +19,7 @@ Identity
 └─ creatorId: string      # distinguishes the current user from a palette's creator (case of a palette published by someone else)
 ```
 
-## 2. Plan, trial, credits
+## 2. Commercial model types
 
 ```
 PlanStatus   = 'UNPAID' | 'PAID' | 'NOT_SUPPORTED'
@@ -30,35 +30,12 @@ TrialStatus  = 'UNUSED' | 'PENDING' | 'EXPIRED' | 'SUSPENDED'
 
 `Config.plan` defines the global parameters: `isProEnabled`, `isTrialEnabled`, `isCreditsEnabled`, `trialTime`, `creditsLimit`, `creditsRenewalPeriodDays`, plus store IDs (`storeProWeekId`, `storeProMonthId`, `storeProYearId`, `storeProLifetimeId`).
 
-**⚠️ Confirmed by the author (2026-07-27): the credits system is currently inactive in production** (`isCreditsEnabled` disabled at the product level), even though all the credit-gating code remains in place in `ui-ui-color-palette` (checks, optimistic debits, `Config.fees`). It could become active again in the future — do not treat credit-related code paths as dead code to remove, and do not conclude from a lack of test coverage/references to credits in a module that they're out of scope for future development.
-
-### Actions consuming credits (`Config.fees`)
-
-| Action | `fees` field |
-| --- | --- |
-| Coolors import | `coolorsImport` |
-| Colour Lovers import | `colourLoversImport` |
-| Realtime Colors import | `realtimeColorsImport` |
-| Extraction from image | `imageColorsExtract` |
-| Harmony creation | `harmonyCreate` |
-| AI generation | `aiColorsGenerate` |
-| Palette creation | `paletteCreate` |
-| Palette generation | `paletteGenerate` |
-| Palette generation with properties | `paletteWithPropsGenerate` |
-| Sheet generation | `sheetGenerate` |
-| Palette updates | `paletteUpdates` |
-| Local styles sync | `localStylesSync` |
-| Local variables sync | `localVariablesSync` |
-| Local tokens sync | `localTokensSync` |
-
-Any new product-side action must explicitly decide whether it belongs in this table (consumes credits) or not — to settle in the corresponding feature spec, "Impact" section.
-
-## 3. Guardrails before an action (`src/bridges/checks/`)
+## 3. Checks (`src/bridges/checks/`)
 
 | Check | Likely role |
 | --- | --- |
 | `checkAnnouncementsStatus` | Determines whether an announcement should be shown (notification or dialog) — see `AnnouncementsStatus`. |
-| `checkCredits` | Verifies the user has enough credits before a billed action. |
+| `checkCredits` | Resolves the credits count. |
 | `checkEditorType` | Resolves the current `Editor` (figma/figjam/dev/dev_vscode/buzz/penpot/sketch/framer). |
 | `checkTrialStatus` | Resolves `TrialStatus` + `trialRemainingTime`. |
 | `checkUserConsent` | Checks consent against `versions.userConsentVersion`. |
@@ -76,6 +53,6 @@ Any new product-side action must explicitly decide whether it belongs in this ta
 ## See also
 
 - [Glossary](../00-overview/glossary.md) — Platform / Editor / Plan / Consent terms
-- [Preferences](../02-features/preferences.md) — language + deep-sync preferences, plan-gated the same way as here
+- [Preferences](../02-features/preferences.md) — language + deep-sync preferences
 - [Modals](../02-features/modals.md) — pricing, license, trial, and consent-adjacent dialogs
-- [Palette](palette.md) §6 — credits interact with the publish/duplicate lifecycle documented there
+- [Palette](palette.md) §6 — the publish/duplicate lifecycle, which relies on the identity fields above

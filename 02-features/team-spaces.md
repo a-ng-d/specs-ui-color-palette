@@ -3,18 +3,18 @@
 - **Status**: Draft
 - **Package(s) concerned**: `web-ui-color-palette` (not implemented yet), `api-ui-color-palette` (new team/seat data model and endpoints, not implemented yet)
 - **UI module**: Web App only, proposed `/team` surface
-- **Related spec**: [Web App](../03-platform-bridges/web-app.md), [Palette](../01-domain-model/palette.md) §6 (existing `org` visibility scope this may or may not be the real implementation of — see Open questions), [User context](../01-domain-model/user-context.md) (individual `PlanStatus`/credits model, distinct from the seat model this introduces)
+- **Related spec**: [Web App](../03-platform-bridges/web-app.md), [Palette](../01-domain-model/palette.md) §6 (existing `org` visibility scope this may or may not be the real implementation of — see Open questions), [User context](../01-domain-model/user-context.md) (individual `PlanStatus` model, distinct from the seat model this introduces)
 
 ## Problem
 
-The Web App's account model today (per the requester's brief and the existing individual `PlanStatus`/credits model in [User context](../01-domain-model/user-context.md)) has no notion of a group of people sharing a pool of palettes. [Palette](../01-domain-model/palette.md) §6 already documents an `org` visibility scope for published palettes ("managed by an organization admin on the remote side") but flags it as unconfirmed from code and with no client-side UI ever built for it. Team spaces are the requester's explicit ask for a user-facing way for several people to access a shared set of palettes, billed per seat.
+The Web App's account model today (per the requester's brief and the existing individual `PlanStatus` model in [User context](../01-domain-model/user-context.md)) has no notion of a group of people sharing a pool of palettes. [Palette](../01-domain-model/palette.md) §6 already documents an `org` visibility scope for published palettes ("managed by an organization admin on the remote side") but flags it as unconfirmed from code and with no client-side UI ever built for it. Team spaces are the requester's explicit ask for a user-facing way for several people to access a shared set of palettes, billed per seat.
 
 ## User flow
 
 1. An account holder creates a **Team space** (name, at minimum) from the Web App.
 2. The team owner/admin invites members; each accepted invite occupies a **seat**.
 3. Members access the team's shared palettes from a `/team` surface, alongside their own personal (non-team) palettes.
-4. The team is billed on a **seat model** — cost scales with the number of members, distinct from the existing individual Free/Pro plan.
+4. The team is billed on a **seat model** — cost scales with the number of members, distinct from the existing individual subscription.
 
 ## Rules
 
@@ -28,7 +28,7 @@ The Web App's account model today (per the requester's brief and the existing in
 - [ ] Given a Team space, when the owner invites someone and the invite is accepted, then that person occupies an additional seat and gains access to the team's palettes via `/team`.
 - [ ] Given a non-member, when they attempt to access a team's `/team` surface, then access is denied.
 - [ ] Given a member of a Team space, when they open `/team`, then they see the team's shared palettes alongside (not merged into) their own personal palettes.
-- [ ] Given a Team space's member count, then billing reflects the seat model (cost scales with seats) rather than the individual Free/Pro plan.
+- [ ] Given a Team space's member count, then billing reflects the seat model (cost scales with seats) rather than the individual subscription.
 
 ## Out of scope
 
@@ -53,7 +53,7 @@ The Web App's account model today (per the requester's brief and the existing in
 
 - [Web App](../03-platform-bridges/web-app.md) — the only platform this applies to
 - [Palette](../01-domain-model/palette.md) §6 — the existing, unconfirmed `org` visibility scope this may overlap with
-- [User context](../01-domain-model/user-context.md) — the individual plan/credits model this sits alongside, not inside
+- [User context](../01-domain-model/user-context.md) — the individual account model this sits alongside, not inside
 - [Sharing links](sharing-links.md) — a possible additional transport for a team palette, interaction unresolved
 
 ## Open questions
@@ -69,3 +69,4 @@ The Web App's account model today (per the requester's brief and the existing in
 | Date | Change |
 | --- | --- |
 | 2026-08-23 | Created as Draft, consolidated from the requester's description of Team spaces with a seat-based billing model for the Web App. Flagged a significant open question: the relationship to Palette §6's pre-existing, never-built-on `org` visibility scope. No implementation exists yet. |
+| 2026-10-29 | Credits and Free/Pro references removed; confirmed by the product owner: seat-based billing, with workspace creation and invitations, is product behaviour and stays |

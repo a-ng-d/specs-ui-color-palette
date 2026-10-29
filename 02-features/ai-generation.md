@@ -3,7 +3,7 @@
 - **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/GenAI.tsx`
-- **Related spec**: [Creation](creation.md) (overview, shared cost model), [Colors](colors.md)
+- **Related spec**: [Creation](creation.md) (overview), [Colors](colors.md)
 
 ## Problem
 
@@ -23,14 +23,12 @@ One of four alternative ways to seed a new palette: describe what you want in a 
 - The 5 roles are fixed (primary/text/success/warning/alert) — the AI doesn't return an arbitrary-length palette, always exactly these 5.
 - Generated source colors are tagged `source: 'AI'`, with hue/chroma shift both reset to 0 (not locked) — same as Color wheel's output, different from Colors' own "add color" default (chroma shift 100).
 - If `getMistral()` returns no client (not configured), generation fails immediately with the same generic error message as an actual failed request (`error.unavailableAi`) — no distinct "AI isn't available in this environment" message.
-- Follows the shared two-fee cost model documented in [Creation](creation.md): `aiColorsGenerate` is debited on a successful generation, `paletteCreate` on commit.
 
 ## Acceptance criteria
 
 - [ ] Given a preset prompt is hovered, when the user moves away without selecting it, then the prompt input reverts to showing nothing selected (preview only, not a commit).
 - [ ] Given a generation request succeeds, when the result renders, then exactly 5 source colors are produced (primary/text/success/warning/alert), each named with its role and the AI-given color name.
 - [ ] Given the AI client isn't configured, when the user requests generation, then this is distinguishable from a failed network request. *(currently both show the same generic error — confirmed gap)*
-- [ ] Given the local-palette quota is reached, when the user tries to commit, then the action is blocked with a trial/upgrade prompt.
 
 ## Out of scope
 
@@ -45,7 +43,6 @@ Reuses the engine's `SourceColorConfiguration` shape; the Mistral response type 
 - **Stores**: reads `$palette` only to attach the current in-progress exchange data to the `CREATE_PALETTE` message; writes nothing itself.
 - **Bridges**: sends `CREATE_PALETTE` with `{ sourceColors, exchange }` — same shape as the other three creation methods. The generation call itself bypasses the bridge entirely (direct client-side API call).
 - **Analytics**: the commit action is tracked via `trackImportEvent`/`trackActionEvent`, same pattern as the other three methods; no distinct "generation requested" or "generation failed" event was identified.
-- **Credits**: `aiColorsGenerate` (successful generation only — not charged on failure) + `paletteCreate` (commit) — see Creation's shared cost model.
 - **Platforms**: none identified.
 
 ## Open questions
@@ -54,7 +51,7 @@ Reuses the engine's `SourceColorConfiguration` shape; the Mistral response type 
 
 ## See also
 
-- [Creation](creation.md) — the shared overview, cost model, and the three sibling methods
+- [Creation](creation.md) — the shared overview and the three sibling methods
 - [Colors](colors.md) — the analogous default-seed-color and hue/chroma-shift behavior in the main editor
 
 ## History
@@ -62,3 +59,4 @@ Reuses the engine's `SourceColorConfiguration` shape; the Mistral response type 
 | Date | Change |
 | --- | --- |
 | 2026-08-04 | Created — as-is consolidation from reading `GenAI.tsx`, following up on a request to cover the creation services |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

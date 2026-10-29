@@ -14,7 +14,7 @@ Source-color management is the module previously flagged in `scale.md`/`preview.
 1. The user sees the palette's source colors as a sortable, reorderable list, each row showing an editable name (24-character limit) and, on wide enough screens, an inline hex-color picker.
 2. On narrow screens the hex picker moves into a "more parameters" panel per color, opened per row instead of inline.
 3. From that same "more parameters" panel, the user can: toggle alpha mode (and, once enabled, set a background color used to preview the composited result), shift hue (-180°..180°) and chroma (0-200%) as per-color offsets from the palette-wide default, edit L/C/H numeric fields directly, and write a free-text description.
-4. The user adds a new source color (up to a plan-gated limit, default 5) — it's seeded with a fixed default color (a light cyan, not randomized) and a generic incrementing name.
+4. The user adds a new source color — it's seeded with a fixed default color (a light cyan, not randomized) and a generic incrementing name.
 5. The user removes a color from its row, or reorders colors by drag-and-drop.
 6. An empty state invites adding the first color when the list is empty.
 
@@ -25,14 +25,12 @@ Source-color management is the module previously flagged in `scale.md`/`preview.
 - Adding a color always seeds the same fixed default color and doesn't touch any "active" state — unlike adding a theme (see Themes), where the new item becomes the sole active one.
 - The only format validation in this module is the same hex-color regex used elsewhere (3- or 6-digit hex, `#` optional on input).
 - On an invalid hex entry, the palette store is correctly left untouched — but the update message is still sent to the host, and the analytics event still fires, carrying whatever data was captured by the last valid update rather than being suppressed. *(confirmed by reading `updateHexCode`; the identical pattern is present in Themes' background/text-color pickers — see Acceptance criteria)*
-- Each of the fields/actions in this module (add/name/hex+LCH/hue-shift/chroma-shift/description/alpha/background/reorder) is individually plan-gated.
 
 ## Acceptance criteria
 
 - [ ] Given the source-color list, when the user reorders colors, then the new order is sent and tracked as `REORDER_COLOR`.
 - [ ] Given a color's hex input, when the user enters a valid 3- or 6-digit hex, then the color updates and the change is tracked as `UPDATE_HEX`.
 - [ ] Given a color's hex input, when the user enters an invalid value, then no update message is sent and no analytics event fires. *(currently a message is sent and an event tracked regardless, using stale data — confirmed gap, fix pending)*
-- [ ] Given the source-color quota is reached, when the user tries to add a color, then the action is blocked with a trial/upgrade prompt.
 - [ ] Given the L/C/H numeric fields, when any of the three (lightness, chroma, hue) is edited, then the analytics event distinguishes which one changed. *(currently all three are tracked under the same `UPDATE_LCH` feature name — confirmed gap)*
 
 ## Out of scope
@@ -67,3 +65,4 @@ Reuses the engine's `ColorConfiguration` and `ShiftConfiguration`. Unlike most o
 | Date | Change |
 | --- | --- |
 | 2026-08-04 | Created — as-is consolidation from reading `Colors.tsx`, following up on the "not yet located" note in scale.md/preview.md/settings.md |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

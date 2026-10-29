@@ -14,7 +14,7 @@ Cloudflare Worker, all endpoints versioned under `/v1`. Wraps `engine-ui-color-p
 | POST | `/v1/get-color-system` | Resolves a Color System (`SystemData`) against a generated palette |
 | POST | `/v1/create-color-harmony` | Generates harmonies (complementary, analogous, triadic, tetradic, compound, square) from a base color |
 | POST | `/v1/extract-dominant-colors` | Extracts dominant colors from a JPEG/PNG image (URL, raw data, or multipart upload) |
-| POST | `/v1/generate-code` | Generates code/tokens directly from `base` + `themes` |
+| POST | `/v1/generate-code` | Generates code/tokens directly from `base` + `themes` (plus an optional `system` for a semantic file) |
 | POST | `/v1/generate-colors-from-prompts` | Generates a palette from a natural-language description (Mistral AI) |
 
 ### `POST /v1/generate-code`
@@ -26,9 +26,12 @@ Request body — **`base`/`themes`, not `paletteData`**:
   "base": { "...": "..." },
   "themes": [{ "...": "..." }],
   "format": "css",
-  "colorSpace": "RGB"
+  "colorSpace": "RGB",
+  "system": { "schema": { "...": "..." }, "bindings": [{ "...": "..." }] }
 }
 ```
+
+`system` is optional (same `{ schema, bindings }` shape as `/v1/get-color-system`). When provided, a semantic tokens file is generated alongside the primitives file, with semantic tokens referencing the primitive shades — see [Color System](../01-domain-model/color-system.md) §4.
 
 `format`: `css | scss | less | tailwind-v3 | tailwind-v4 | swift-ui | ui-kit | compose | resources | csv | native-tokens | dtcg-tokens | style-dictionary-v3 | universal-json`
 

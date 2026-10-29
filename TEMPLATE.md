@@ -34,7 +34,6 @@ Technical detail relevant to building this — reference `01-domain-model/` rath
 - **Stores** (`src/stores/`): new state? migration of existing state?
 - **Platforms** (Figma / Penpot / Sketch / Framer): available everywhere or only on certain platforms? Why?
 - **API / MCP** (`04-contracts/`): new endpoint, new tool, or reuse of an existing one?
-- **Credits / plan** (`config.fees`, `checkCredits`): does the action consume credits?
 - **Analytics** (`types/events.ts`): new Mixpanel event to add?
 
 ## Locales

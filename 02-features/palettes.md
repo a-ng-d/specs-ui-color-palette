@@ -7,7 +7,7 @@
 
 ## Problem
 
-Local palette management (list, create, duplicate, open, delete) is implemented as two near-twin views (file-scoped and page-scoped) that mostly work, but carry a few confirmed inconsistencies that need fixing: a credit debit with no rollback on a failed duplication, and unexplained divergences between the two twin views (empty-state CTA gating, delete-dialog fallback) that were never reconciled after the two views drifted apart.
+Local palette management (list, create, duplicate, open, delete) is implemented as two near-twin views (file-scoped and page-scoped) that mostly work, but carry a few confirmed inconsistencies that need fixing: unexplained divergences between the two twin views (empty-state CTA conditions, delete-dialog fallback) that were never reconciled after the two views drifted apart.
 
 ## User flow
 
@@ -17,14 +17,11 @@ Local palette management (list, create, duplicate, open, delete) is implemented 
    - **Open** or **View** it — intended to differ (Open enters edit mode, View only allows inspecting and exporting), but both currently do exactly the same thing (jump into the palette).
    - **Duplicate** it — creates a copy under a new id, with a loading spinner on that row while it processes.
    - **Delete** it — a confirmation dialog appears first, showing the palette's name.
-4. If the local-palette quota is reached, a banner appears (except in dev-oriented editors) showing the limit and a trial/upgrade prompt; Create and Duplicate become blocked, Delete never does.
-5. From the empty state, the user can jump to "Explore palettes" (published-palette browser) or "Create a palette".
+4. From the empty state, the user can jump to "Explore palettes" (published-palette browser) or "Create a palette".
 
 ## Rules
 
 - No search, filter, or manual sort — only the implicit last-opened ordering.
-- **Duplicate** is blocked once the local-palette quota is reached, in addition to being plan-gated.
-- **Delete** is never blocked by the quota — a user can always delete their way back under the limit.
 - **Open** and **View** are supposed to differ — Open opens the palette in edit mode (equivalent to Edit), View only allows inspecting and exporting it — but currently both trigger the identical action (jump to the palette).
 - A palette pulled in from the published browser refuses to be added if that id already exists locally.
 - Listing is **not actually scoped by page or file** in the shared UI code, despite the sub-tab naming — this is intentional: scoping happens on the host/platform side. Figma and Penpot scope at the page level, Framer and Sketch at the document level (Framer specifically reads from user-level storage, not document storage).
@@ -34,11 +31,8 @@ Local palette management (list, create, duplicate, open, delete) is implemented 
 
 - [ ] Given the local-palette list, when it renders, then rows are sorted by most-recently-opened first, with no search/filter/manual-sort control shown.
 - [ ] Given a user duplicates a palette and the duplication succeeds, when the sandbox confirms success, then the row shows the new palette and the loading spinner clears.
-- [ ] Given a user duplicates a palette and the duplication fails, when the failure is confirmed, then any credit debited for the action is rolled back. *(currently not the case — confirmed bug, fix pending)*
-- [ ] Given the local-palette quota is reached, when the user tries to create or duplicate a palette, then the action is blocked with a trial/upgrade prompt.
-- [ ] Given the local-palette quota is reached, when the user deletes a palette, then the action is never blocked by the quota.
 - [ ] Given a palette has no name, when the delete-confirmation dialog opens, then it shows a translated placeholder instead of a blank name, consistently across both the file-scoped and page-scoped views. *(currently only true in one of the two — confirmed divergence, fix pending)*
-- [ ] Given the empty state, when "browse community" is available, then the "Explore palettes" CTA is shown consistently across both the file-scoped and page-scoped views, regardless of whether "create" is also available. *(currently gated differently between the two views — confirmed divergence, fix pending)*
+- [ ] Given the empty state, when "browse community" is available, then the "Explore palettes" CTA is shown consistently across both the file-scoped and page-scoped views, regardless of whether "create" is also available. *(currently shown under different conditions in the two views — confirmed divergence, fix pending)*
 
 ## Out of scope
 
@@ -49,13 +43,12 @@ Local palette management (list, create, duplicate, open, delete) is implemented 
 
 ## Implementation notes
 
-Both views share the same props/state shape: list status (loading/loaded/empty), the palette list, source colors, create/explore callbacks; local state tracks the delete-confirmation dialog, the targeted palette, and a per-row loading flag. Each exposes the same set of 7 plan-gated features.
+Both views share the same props/state shape: list status (loading/loaded/empty), the palette list, source colors, create/explore callbacks; local state tracks the delete-confirmation dialog, the targeted palette, and a per-row loading flag. Each exposes the same set of 7 feature flags.
 
 - **Bridges**: row actions route through the shared plugin-message dispatcher to the matching bridge (open/view → jump to palette, duplicate → create-from-duplication, delete → delete), each followed by a list refresh. Creating a brand-new palette or pulling one from the published browser is triggered one level up, not from these two views themselves.
-- **Stores**: a shared "local palette count" value is written elsewhere and read by *other* modules (Explore, AI generation, color wheel, image import) for their own quota checks — these two views read the list length directly from their own props instead.
-- **Credits**: duplicating a palette optimistically debits credits client-side, before the sandbox-side duplication is confirmed to have succeeded — see the rollback fix above.
+- **Stores**: a shared "local palette count" value is written elsewhere and read by *other* modules (Explore, AI generation, color wheel, image import) — these two views read the list length directly from their own props instead.
 - **Analytics**: duplicating, deleting, and opening/viewing a local palette have no identifiable tracked event today. Creating a palette and interacting with published palettes are tracked one level above this module.
-- **Platforms**: no platform-specific branching inside these two views beyond hiding the quota banner in dev-oriented editors.
+- **Platforms**: no platform-specific branching inside these two views.
 
 ## See also
 
@@ -76,3 +69,4 @@ Both views share the same props/state shape: list status (loading/loaded/empty),
 | 2026-08-04 | Resolved the Open vs. View open question: Open enters edit mode, View allows inspection/export only (not yet implemented) |
 | 2026-08-04 | Resolved the spinner-reset open question: harmless, since the interface blocks concurrent actions — no two rows can race; "Open questions" section removed |
 | 2026-08-04 | Linked [Inspect](inspect.md), the read-only mode "View" is meant to route into — confirmed no such routing exists yet in code |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

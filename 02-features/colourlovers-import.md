@@ -3,7 +3,7 @@
 - **Status**: **Forked by platform, confirmed by the requester 2026-09-21.** The Web App's `/colors/explore` already runs against **Color Hunt**; design-tool plugins still run the **ColourLovers** flow described below in User flow/Rules/Acceptance criteria. Full Color Hunt detail in [Planned change](#planned-change--color-hunt-replaces-colourlovers) below — that section is no longer a future intent for the Web App, it's what's live there today; it remains a to-do for the plugins.
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/Explore.tsx`, exposed on the Web App as the `/colors/explore` route (see [Web App](../03-platform-bridges/web-app.md#routing--ssr))
-- **Related spec**: [Creation](creation.md) (overview, shared cost model), [Palettes](palettes.md), [Web App](../03-platform-bridges/web-app.md) (`/colors/explore` route)
+- **Related spec**: [Creation](creation.md) (overview), [Palettes](palettes.md), [Web App](../03-platform-bridges/web-app.md) (`/colors/explore` route)
 
 ## Problem
 
@@ -21,14 +21,11 @@ One of four alternative ways to seed a new palette: browse palettes from a third
 - Palettes are fetched through a CORS proxy worker (`config.urls.corsWorkerUrl`) wrapping `https://www.colourlovers.com/api/palettes`, paginated by a configured page size (`config.limits.pageSize`).
 - Changing the active hue filter resets pagination to page 1 and clears the current results before refetching — not an incremental re-filter of already-loaded results.
 - Generated source colors are tagged `source: 'COLOUR_LOVERS'` and, unlike the other three creation methods, are marked `isRemovable: true` and seeded with chroma shift **100** (not 0) — closer to Colors' own "add color" default than to Color wheel/AI/Image's shared 0/0/`isRemovable: false` pattern.
-- Unlike the other three methods (which charge their generation/extraction fee as soon as a result is produced), the ColourLovers fee (`colourLoversImport`) is only charged **at commit time**, together with `paletteCreate` — because browsing/filtering the list itself has no per-result cost.
 
 ## Acceptance criteria
 
 - [ ] Given the hue filter changes, when new results are requested, then pagination resets to page 1 and previously loaded results are cleared first.
 - [ ] Given the ColourLovers API request fails, when the error is caught, then the list shows an error state rather than an empty or infinitely-loading one.
-- [ ] Given a palette is committed, when the action completes, then both the `colourLoversImport` fee and the `paletteCreate` fee are debited, in that order.
-- [ ] Given the local-palette quota is reached, when the user tries to commit, then the action is blocked with a trial/upgrade prompt.
 
 ## Out of scope
 
@@ -43,7 +40,6 @@ Reuses the engine's `SourceColorConfiguration` shape; results are typed as `Colo
 - **Stores**: reads `$palette` only to attach the current in-progress exchange data to the `CREATE_PALETTE` message; writes nothing itself.
 - **Bridges**: sends `CREATE_PALETTE` with `{ sourceColors, exchange }` — same shape as the other three creation methods. The palette-list fetch itself is a plain `fetch()` to the CORS proxy, not a plugin-message bridge.
 - **Analytics**: `IMPORT_COLOUR_LOVERS` (commit) via `trackImportEvent`; the underlying `CREATE_PALETTE` action itself is tracked separately.
-- **Credits**: `colourLoversImport` + `paletteCreate`, both debited at commit time — see Creation's shared cost model and this module's Rules for why the timing differs from the other three.
 - **Platforms**: none identified.
 
 ## Planned change — Color Hunt replaces ColourLovers
@@ -66,7 +62,7 @@ Reuses the engine's `SourceColorConfiguration` shape; results are typed as `Colo
 **Ordering — reworked from popularity to recency:**
 - Color Hunt results are sorted by **most recently created**, replacing whatever popularity/vote-based ordering ColourLovers offered — consistent with votes no longer being available at all.
 
-**Renaming — confirmed as necessary, but not yet scheduled:** `source: 'COLOUR_LOVERS'` (on generated source colors), the `colourLoversImport` fee key, the `IMPORT_COLOUR_LOVERS` analytics event, and this module/spec's own naming (`colourlovers-import.md`, `Explore.tsx`) all need to move to Color Hunt naming — the requester confirmed this explicitly ("c'est quelque chose qui va falloir faire effectivement par la suite") as planned but not timed. Until then, code and this doc keep the ColourLovers-derived identifiers as the internal names for a data source that's already changed underneath them on the Web App.
+**Renaming — confirmed as necessary, but not yet scheduled:** `source: 'COLOUR_LOVERS'` (on generated source colors), the `IMPORT_COLOUR_LOVERS` analytics event, and this module/spec's own naming (`colourlovers-import.md`, `Explore.tsx`) all need to move to Color Hunt naming — the requester confirmed this explicitly ("c'est quelque chose qui va falloir faire effectivement par la suite") as planned but not timed. Until then, code and this doc keep the ColourLovers-derived identifiers as the internal names for a data source that's already changed underneath them on the Web App.
 
 **Rollout:** the Web App already runs the Color Hunt flow described above — this is not a future state for that platform. Design-tool plugins still run the ColourLovers flow as documented in User flow/Rules/Acceptance criteria above; migrating them is separate, scheduled work. No word yet on whether existing palettes already tagged `source: 'COLOUR_LOVERS'` need any data migration, or simply stay as historical data under the old tag once the rename happens.
 
@@ -74,7 +70,6 @@ Reuses the engine's `SourceColorConfiguration` shape; results are typed as `Colo
 
 Still genuinely open, not addressed by any answer so far:
 
-- Whether the fee model changes given the new two-request (feed + per-palette unit fetch) flow — does `colourLoversImport`/its Color Hunt successor still charge once at commit, or does the extra network shape change the cost story?
 - Exact mechanism behind the Web-App-live / plugins-pending split: a shared `Explore.tsx` reading a per-platform config value (e.g. a different `corsWorkerUrl` target per platform), a feature flag, or a code fork — not verified in source; relevant to estimating how much work the plugin migration actually is.
 - Whether the previous 6 named hue categories (Yellow, Orange, Red, Green, Violet, Blue) carry over as the single-select option set, or Color Hunt's own categorization replaces them.
 
@@ -84,7 +79,7 @@ Still genuinely open, not addressed by any answer so far:
 
 ## See also
 
-- [Creation](creation.md) — the shared overview, cost model, and the three sibling methods
+- [Creation](creation.md) — the shared overview and the three sibling methods
 - [Palettes](palettes.md) — the similarly-named but functionally distinct "Explore palettes" community/published-palette browser
 - [Web App](../03-platform-bridges/web-app.md) — where this module is exposed as the `/colors/explore` route, and where the Color Hunt transition was first mentioned
 
@@ -97,3 +92,4 @@ _Ordered most recent to oldest._
 | 2026-09-21 | Requester answered the Planned change open questions in full: confirmed the Web App already runs Color Hunt live (plugins still pending), detailed the reworked data flow (feed + per-palette unit fetch, no votes/user attribution, like count, client-generated names), the filter rework (cumulative → single-select), the recency-based ordering, and that identifier renaming is confirmed-but-unscheduled. Status line updated to reflect the per-platform fork. Three new narrower open questions surfaced (fee model under the new flow, the exact platform-split mechanism, whether the hue category names carry over). |
 | 2026-09-21 | Added Planned change section: requester announced ColourLovers → Color Hunt provider migration for the Web App's `/explore` route. No code changes read yet (`Explore.tsx`, `webConfig.ts` fee key, analytics event, and this file's own naming are all still ColourLovers-named) — tracked as an open migration, not a rename. Cross-linked from and to [Web App](../03-platform-bridges/web-app.md#routing--ssr). |
 | 2026-08-04 | Created — as-is consolidation from reading `Explore.tsx`, following up on a request to cover the creation services; naming collision with "Explore palettes" flagged explicitly |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

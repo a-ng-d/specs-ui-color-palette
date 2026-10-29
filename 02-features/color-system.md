@@ -59,7 +59,6 @@ See [`../01-domain-model/color-system.md`](../01-domain-model/color-system.md) f
 - **Bridges**: none yet for the semantic layer specifically — primitive sync bridges are unaffected until platform sync is scoped.
 - **API / MCP**: already covered by `get_color_system`, and by `generate_code` when a system is passed alongside `base`/`themes`.
 - **Platforms**: not yet available anywhere as a design-tool artifact — only as generated code/tokens.
-- **Credits / plan**: not documented yet — to confirm whether resolving/exporting a Color System consumes credits the same way palette generation does.
 
 ## Open questions
 
@@ -88,3 +87,4 @@ See [`../01-domain-model/color-system.md`](../01-domain-model/color-system.md) f
 | 2026-08-05 | Design-tool UI named "Structure" and split into its own spec — see [Structure](structure.md) |
 | 2026-08-05 | Corrected the `isExcluded` behavior: the engine never resolves an excluded token at all (confirmed by the requester as intended), not "resolved internally, hidden only at export" as previously documented here and in the domain model. Resolves a prior open question. |
 | 2026-08-05 | Resolved the remaining three open questions: broken-reference behavior (silently nulled at API/engine level, warning-tagged in the design-tool UI, expected to be fixed via MCP-driven tooling for cloud palettes); hand-editing confirmed for v1 with an adjacent-shade suggestion as a future enhancement (superseding the orchestrator-guided-flow framing in User flow); per-platform semantic sync confirmed as real aliasing on Figma/Penpot vs. structure-only (no binding at all) on Sketch/Framer. No open questions remain in this spec. |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

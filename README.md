@@ -8,6 +8,8 @@ Internal engineering specifications for the **UI Color Palette** product, meant 
 
 `specs-ui-color-palette` is the **engineering documentation**, organized by functional domain. It explains *how the product is built* and *what we plan to change*. Audience: the dev team (you, and any future contributor or agent who needs to implement a feature without rediscovering the whole monorepo).
 
+The specs describe product behaviour only. What each plan includes lives in `docs-ui-color-palette/general/introduction/free-and-pro.md`.
+
 ## Method: foundation + specs on demand
 
 We don't specify everything at once. Two content categories, two writing cadences:
@@ -50,9 +52,9 @@ Every file links back here and sideways to what it depends on — start anywhere
 
 ### 01 — Domain model (stable foundation)
 
-- [Palette](01-domain-model/palette.md) — generation inputs, edit operations, local vs. published lifecycle, quotas, export
+- [Palette](01-domain-model/palette.md) — generation inputs, edit operations, local vs. published lifecycle, limits, export
 - [Color System](01-domain-model/color-system.md) — the semantic layer on top of a palette: taxonomy, bindings, resolution
-- [User context](01-domain-model/user-context.md) — identity/session, plan/trial/credits, consent, pre-action guardrails
+- [User context](01-domain-model/user-context.md) — identity/session, commercial model types, consent, checks
 
 ### 02 — Features (one per UI module)
 

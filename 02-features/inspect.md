@@ -19,7 +19,6 @@ Inspect is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched
 ## Rules
 
 - The Report tab reuses the exact same `ContrastReport` component as Edit mode — same scores, same sample-text playground, same known gaps (see Preview: "report opened" over-tracking, WCAG/APCA threshold mismatch with the shade-list filters) apply identically here, since it's the same code, not a separate implementation.
-- The Report tab is individually plan-gated, the same per-context gating pattern used for Edit mode's Scale/Colors/Themes/Imports/Settings tabs.
 - Preview's theme switcher is available here too (reusing the same dropdown), but nothing else in Preview is editable — no add-color/add-stop entry points exist in this mode.
 - The palette list's "View" action (see Palettes) doesn't currently route here — only a generic "Open" action exists on each row, which always opens the palette in Edit mode. Inspect is reachable only via the in-app mode switcher once a palette is already open.
 
@@ -60,3 +59,4 @@ Reuses the engine's read model (`PresetConfiguration`, `ColorConfiguration`, `Th
 | --- | --- |
 | 2026-08-04 | Created — as-is consolidation from reading `InspectPalette.tsx` and `Properties.tsx`, following up on a request to cover the missing Export/Inspect modes |
 | 2026-08-04 | Recentered on the contrast report (Report tab) only; the Properties tab moved out of scope, candidate for its own spec |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

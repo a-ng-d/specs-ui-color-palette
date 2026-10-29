@@ -12,7 +12,7 @@
 | --------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Entry     | `loadUI.ts`                                 | Entry point: orchestrates the checks  (`checks/`) and updates.                                     |
 | Checks    | `checks/checkAnnouncementsStatus.ts`        | Determines whether an announcement should be shown.                                                |
-| Checks    | `checks/checkCredits.ts`                    | Checks the user's credit balance before a billed action.                                           |
+| Checks    | `checks/checkCredits.ts`                    | Resolves the credits count.                                                                        |
 | Checks    | `checks/checkEditorType.ts`                 | Resolves the current `Editor`.                                                                     |
 | Checks    | `checks/checkTrialStatus.ts`                | Resolves the trial status.                                                                         |
 | Checks    | `checks/checkUserConsent.ts`                | Checks consent.                                                                                    |

@@ -75,9 +75,9 @@ The precise semantics of `PUSH` vs `SYNC` vs `REVERT` vs `DETACH` are documented
 
 ⚠️ This description comes from the author, not from reading the Supabase schema / `api-ui-color-palette` code — to confirm against the API code if a future development touches the org-scoping logic.
 
-## 7. Quotas
+## 7. Limits
 
-`Config.limits`: `localPalettes`, `sourceColors`, `customStops`, `colorThemes` — caps likely dependent on plan (Free/Pro), to confirm in a dedicated spec if they need to evolve.
+`Config.limits`: `localPalettes`, `sourceColors`, `customStops`, `colorThemes` — the configured caps on palette volume.
 
 ## 8. Export
 

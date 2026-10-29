@@ -40,7 +40,7 @@ See [`01-domain-model/user-context.md`](../01-domain-model/user-context.md) for 
 | --- | --- |
 | **Platform** | `figma \| penpot \| sketch \| framer` — the design tool family. **Planned, not yet in code**: `web` (Web App) and a Chrome Extension surface — see [`03-platform-bridges/web-app.md`](../03-platform-bridges/web-app.md) / [`03-platform-bridges/chrome-extension.md`](../03-platform-bridges/chrome-extension.md). |
 | **Editor** | Finer-grained than Platform: `figma \| figjam \| dev \| dev_vscode \| buzz \| penpot \| sketch \| framer`. A single Platform (figma) has several possible Editors. |
-| **Plan / Trial / Credits** | Commercial model: `PlanStatus` (UNPAID/PAID/NOT_SUPPORTED), `TrialStatus` (UNUSED/PENDING/EXPIRED/SUSPENDED), and a credits system consumed per action (see `config.fees` and `01-domain-model/user-context.md`). |
+| **Plan / Trial / Credits** | Commercial model types: `PlanStatus` (UNPAID/PAID/NOT_SUPPORTED), `TrialStatus` (UNUSED/PENDING/EXPIRED/SUSPENDED), and the credits count fields (see `01-domain-model/user-context.md`). What each plan includes is documented in `docs-ui-color-palette/general/introduction/free-and-pro.md`. |
 | **Consent** | Versioned user consent (GDPR/tracking), checked by `checkUserConsent`. |
 
 ## Published palettes

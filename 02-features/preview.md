@@ -18,8 +18,7 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
    - An editable sample-text playground (text + font weight) that resets every time the report reopens.
    - A light-text/dark-text toggle.
    - A grid of scores: WCAG ratio, APCA score, a custom "readability" score, and a minimum recommended font size for the current weight.
-4. If the report itself is plan-blocked, placeholder colors are shown behind an upsell message instead of real data.
-5. In the preview panel's settings (edit mode only), the user can change color space, lock/unlock source colors, switch themes, and insert a new color or stop.
+4. In the preview panel's settings (edit mode only), the user can change color space, lock/unlock source colors, switch themes, and insert a new color or stop.
 
 ## Rules
 
@@ -27,7 +26,6 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 - There's no configurable pass/fail threshold in the UI; thresholds are hardcoded, aligned with the WCAG 2.1 (ratio-based) and WCAG 3.0 (APCA-based) standards.
 - The pass/fail thresholds used in the contrast report and the ones used to filter the shade list are supposed to be identical, and currently aren't (see Acceptance criteria).
 - The vision-simulation control does **not** live in the preview settings panel — it lives in the themes panel instead, applied per theme.
-- Plan-blocked report access shows placeholder colors, never the real palette data, behind an upsell.
 
 ## Acceptance criteria
 
@@ -36,7 +34,6 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 - [ ] Given the contrast report is closed and reopened, when it opens, then exactly one "report opened" analytics event fires.
 - [ ] Given a score-display toggle is flipped, when the change is applied, then it persists across sessions and is tracked in analytics.
 - [ ] Given a score filter is changed, when shades are filtered, then the result updates immediately without persistence — but **is** tracked in analytics, matching the display toggles. *(currently untracked — confirmed gap, not intentional, fix pending)*
-- [ ] Given the `REPORT` feature is plan-blocked, when a user opens a shade, then placeholder colors and an upsell message are shown instead of the real contrast data.
 
 ## Out of scope
 
@@ -50,10 +47,9 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 
 - **Stores**: the 4 display toggles and per-shade contrast scores are read/written by sibling modules (the shade list and the preview shell), not directly by the files documented here. Color-space, lock, and vision-mode changes are applied by the preview shell, not by the sub-components themselves.
 - **Vision simulation**: the vision-simulation action still present in the preview shell's update handler is legacy code — it's not currently wired to any control in preview (see Rules: the live control lives in the themes panel instead), but it was kept because it may be reconnected as a preview-scoped toggle in the future.
-- **Bridges**: display-toggle changes persist via the generic item-storage message; lock/color-space/vision-mode changes persist via the generic palette-update message; blocked features trigger a trial/upgrade prompt. No "jump to this shade on the canvas" bridge exists — previous/next navigation in the contrast report only changes what's shown in the panel.
+- **Bridges**: display-toggle changes persist via the generic item-storage message; lock/color-space/vision-mode changes persist via the generic palette-update message. No "jump to this shade on the canvas" bridge exists — previous/next navigation in the contrast report only changes what's shown in the panel.
 - **Analytics**: score-display toggles, opening the contrast report, color-space changes, and source-color locking are all tracked. Score filters are not tracked at all today — confirmed a gap to close, not a deliberate omission; needs a new tracked event mirroring the display-toggle one, keyed by WCAG/APCA × light/dark filter change.
-- **Credits**: no credit consumption identified — gating here is plan-based only.
-- **Platforms**: the only platform-specific behavior found is a background color choice (for the upsell overlay) that varies by host editor.
+- **Platforms**: no platform-specific behavior identified in these files.
 
 ## Open questions
 
@@ -77,3 +73,4 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 | 2026-08-03 | Reformatted to the Problem/User flow/Rules/Acceptance criteria template |
 | 2026-08-04 | Resolved three open questions: vision-simulation handler is legacy code kept as a possible future re-connection point; thresholds confirmed aligned with WCAG 2.1/3.0; readability-score formula documented (APCA Lc rescaled to 100 × font-weight weighting) |
 | 2026-08-06 | Confirmed the missing analytics tracking on score filters is a genuine gap, not intentional — added as a third confirmed bug (status line updated), with a new acceptance criterion (filters should be tracked, mirroring the display toggles). |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

@@ -19,7 +19,7 @@ Cloudflare Worker (`McpAgent` + Durable Objects, Cloudflare Agents SDK). Streama
 
 ### `generate_code` — input
 
-`base`, `themes`, `format?`, `colorSpace?`. An exact mirror of the `POST /v1/generate-code` contract (see `api-endpoints.md`) — does **not** take a `paletteData` input.
+`base`, `themes`, `format?`, `colorSpace?`, `system?`. An exact mirror of the `POST /v1/generate-code` contract (see `api-endpoints.md`) — does **not** take a `paletteData` input. `system` (`{ schema, bindings }`, same shape as `get_color_system`'s input) is optional: when provided, a semantic tokens file is generated alongside the primitives file, with semantic tokens referencing the primitive shades (see [Color System](../01-domain-model/color-system.md) §4).
 
 ## Published palettes
 

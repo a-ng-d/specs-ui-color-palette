@@ -6,7 +6,7 @@
 
 ## Objective
 
-Organic growth channel for Yelbolt: a public, no-install surface that lets anyone try the palette-editing experience directly in a browser, funneling into the design-tool plugins and paid plans rather than replacing them.
+Organic growth channel for Yelbolt: a public, no-install surface that lets anyone try the palette-editing experience directly in a browser, funneling into the design-tool plugins rather than replacing them.
 
 ## What's iso vs. what's different vs. the plugins
 
@@ -15,7 +15,7 @@ Organic growth channel for Yelbolt: a public, no-install surface that lets anyon
 - **Different — no design-tool sync**: none of the platform-specific bridges documented for Figma/Penpot/Sketch/Framer apply here — no variable/token/style sync, no on-canvas document generation. There is no design-tool document to sync to or store the palette in.
 - **New — sharing by link, implemented**: see [Sharing links](../02-features/sharing-links.md) — full mechanism confirmed, see the Routing & SSR and Anchor points sections below.
 - **New — team spaces, not started**: see [Team spaces](../02-features/team-spaces.md).
-- **Account model**: editing a palette never requires an account (same "try before you sign up" philosophy as the plugins' local palettes) — an account is required only to **publish** a palette and to **subscribe** (paid plan / team seats).
+- **Account model**: editing a palette never requires an account (same "try before you sign up" philosophy as the plugins' local palettes) — an account is required only to **publish** a palette and to **subscribe**.
 
 ## Routing & SSR
 
@@ -79,3 +79,4 @@ _Ordered most recent to oldest._
 | 2026-09-21 | Requester answered all remaining Open questions from the same-day update: Web App local storage confirmed as IndexedDB (vs. `localStorage` for the plugins' sandboxed hosts), and the ColourLovers → Color Hunt transition on `/explore` confirmed in full (see [ColourLovers import](../02-features/colourlovers-import.md)). No open questions remain in this file as of this entry. |
 | 2026-09-21 | Added Routing & SSR section (confirmed `/manage`, `/gen`, `/extract`, `/wheel`, `/explore` from `web-ui-color-palette` source), resolved three Anchor points/Open questions by reading code (`editor: 'web'`, shared-component reuse, local-store location), and flagged the requester-announced ColourLovers → Color Hunt provider transition on `/explore`. |
 | 2026-08-23 | Created as Draft, consolidated from the requester's description of the Web App as a growth-focused, iso-but-reskinned surface with link sharing and team spaces. No implementation exists yet. |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |

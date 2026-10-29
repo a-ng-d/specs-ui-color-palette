@@ -3,7 +3,7 @@
 - **Status**: Implemented (as-is behavior, with a confirmed silent-failure gap flagged — see Acceptance criteria)
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/ImagePalette.tsx`
-- **Related spec**: [Creation](creation.md) (overview, shared cost model), [Colors](colors.md)
+- **Related spec**: [Creation](creation.md) (overview), [Colors](colors.md)
 
 ## Problem
 
@@ -21,14 +21,12 @@ One of four alternative ways to seed a new palette: provide an image, get its 5 
 - Clipboard paste only accepts `image/png` — any other image MIME type (JPEG, GIF, WebP, etc.) is silently ignored: the paste handler checks the type and simply does nothing if it doesn't match, with no error or toast shown to the user. *(confirmed gap — see Acceptance criteria)*
 - Extraction always returns up to 5 dominant colors (`DominantColors.extract(buffer, 5)`), regardless of source (paste or canvas selection).
 - Generated source colors are tagged `source: 'IMAGE'`, with hue/chroma shift both reset to 0 (not locked) — same pattern as Color wheel and AI generation.
-- The extraction fee (`imageColorsExtract`) is charged once per successful extraction (paste or canvas selection alike), before the user decides whether to commit; the `paletteCreate` fee is charged separately, only on commit — see Creation's shared cost model.
 
 ## Acceptance criteria
 
 - [ ] Given a PNG image pasted from the clipboard, when extraction succeeds, then up to 5 dominant colors are shown with the source image.
 - [ ] Given a non-PNG image pasted from the clipboard, when the paste happens, then the user sees a clear message explaining why nothing happened. *(currently silent — confirmed gap, fix pending)*
-- [ ] Given an image pushed in from the host canvas selection, when extraction runs, then it behaves identically to a clipboard paste (same 5-color cap, same fee).
-- [ ] Given the local-palette quota is reached, when the user tries to commit, then the action is blocked with a trial/upgrade prompt.
+- [ ] Given an image pushed in from the host canvas selection, when extraction runs, then it behaves identically to a clipboard paste (same 5-color cap).
 
 ## Out of scope
 
@@ -43,7 +41,6 @@ Reuses the engine's `SourceColorConfiguration` shape; extraction is delegated to
 - **Stores**: reads `$palette` only to attach the current in-progress exchange data to the `CREATE_PALETTE` message; writes nothing itself.
 - **Bridges**: sends `CREATE_PALETTE` with `{ sourceColors, exchange }` — same shape as the other three creation methods. `GET_IMAGE_HASH` is the inbound message carrying a host-selected canvas image.
 - **Analytics**: `EXTRACT_DOMINANT_COLORS` (commit) via `trackImportEvent`; the underlying `CREATE_PALETTE` action itself is tracked separately.
-- **Credits**: `imageColorsExtract` (per successful extraction, paste or canvas) + `paletteCreate` (commit) — see Creation's shared cost model.
 - **Platforms**: the canvas-image-selection entry point necessarily depends on host support for pushing an image reference — not detailed further here.
 
 ## Open questions
@@ -52,7 +49,7 @@ Reuses the engine's `SourceColorConfiguration` shape; extraction is delegated to
 
 ## See also
 
-- [Creation](creation.md) — the shared overview, cost model, and the three sibling methods
+- [Creation](creation.md) — the shared overview and the three sibling methods
 - [Colors](colors.md) — the analogous default-seed-color and hue/chroma-shift behavior in the main editor
 
 ## History
@@ -60,3 +57,4 @@ Reuses the engine's `SourceColorConfiguration` shape; extraction is delegated to
 | Date | Change |
 | --- | --- |
 | 2026-08-04 | Created — as-is consolidation from reading `ImagePalette.tsx`, following up on a request to cover the creation services |
+| 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
