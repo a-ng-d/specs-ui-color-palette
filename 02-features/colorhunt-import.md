@@ -1,13 +1,13 @@
 # Feature — ColourLovers import (third-party palette seeding)
 
-- **Status**: **Forked by platform, confirmed by the requester 2026-09-21.** The Web App's `/colors/explore` already runs against **Color Hunt**; design-tool plugins still run the **ColourLovers** flow described below in User flow/Rules/Acceptance criteria. Full Color Hunt detail in [Planned change](#planned-change--color-hunt-replaces-colourlovers) below — that section is no longer a future intent for the Web App, it's what's live there today; it remains a to-do for the plugins.
+- **Status**: Implemented — **Color Hunt on every platform, confirmed by the product owner 2026-10-30**: the Web App and the design-tool plugins (Figma, Penpot, Sketch, Framer) all run the Color Hunt flow described in [Planned change](#planned-change--color-hunt-replaces-colourlovers). The ColourLovers flow in User flow/Rules/Acceptance criteria below is the former behaviour, kept until this spec is rewritten around Color Hunt.
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/services/Explore.tsx`, exposed on the Web App as the `/colors/explore` route (see [Web App](../03-platform-bridges/web-app.md#routing--ssr))
 - **Related spec**: [Creation](creation.md) (overview), [Palettes](palettes.md), [Web App](../03-platform-bridges/web-app.md) (`/colors/explore` route)
 
 ## Problem
 
-One of four alternative ways to seed a new palette: browse palettes from a third-party site and import one. It works as expected — **on design-tool plugins this is still the ColourLovers flow described below; on the Web App it's already the Color Hunt flow described in [Planned change](#planned-change--color-hunt-replaces-colourlovers)**. Naming warning: this module is called `Explore.tsx` and reached via the `EXPLORE` top-level service, but it is **not** the "Explore palettes" community/published-palette browser referenced in Palettes' empty-state CTA — that's a different, still-undocumented module (`contexts/RemotePalettes.tsx`). Both happen to be reachable under similar wording; don't conflate them.
+One of four alternative ways to seed a new palette: browse palettes from a third-party site and import one. It works as expected — **on every platform it is now the Color Hunt flow described in [Planned change](#planned-change--color-hunt-replaces-colourlovers); the ColourLovers flow below is the former behaviour**. Naming warning: this module is called `Explore.tsx` and reached via the `EXPLORE` top-level service, but it is **not** the "Explore palettes" community/published-palette browser referenced in Palettes' empty-state CTA — that's a different, still-undocumented module (`contexts/RemotePalettes.tsx`). Both happen to be reachable under similar wording; don't conflate them.
 
 ## User flow
 
@@ -93,3 +93,4 @@ _Ordered most recent to oldest._
 | 2026-09-21 | Added Planned change section: requester announced ColourLovers → Color Hunt provider migration for the Web App's `/explore` route. No code changes read yet (`Explore.tsx`, `webConfig.ts` fee key, analytics event, and this file's own naming are all still ColourLovers-named) — tracked as an open migration, not a rename. Cross-linked from and to [Web App](../03-platform-bridges/web-app.md#routing--ssr). |
 | 2026-08-04 | Created — as-is consolidation from reading `Explore.tsx`, following up on a request to cover the creation services; naming collision with "Explore palettes" flagged explicitly |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
+| 2026-10-30 | Confirmed by the product owner: the design-tool plugins run Color Hunt too — the migration is complete on every platform. Status updated; the body still describes ColourLovers and needs a rewrite |
