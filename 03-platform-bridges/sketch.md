@@ -18,7 +18,7 @@ Architecturally, variable and style sync mirror Figma's naming and behavior, but
 - Each shade of the palette becomes a **document swatch** — Sketch's closest equivalent to a Figma variable.
 - **No theme/mode concept**: Sketch has no way for one swatch to hold a different value per theme. Themed shades still get created as swatches, but flat — there's no true parity with Figma's "one variable, several mode values."
 - No contrast/lightness documentation attached: Sketch swatches don't support the kind of rich description Figma variables carry.
-- Safe to re-run, matched by name.
+- Safe to re-run, matched by **name**, not by an identifier: renaming a source color breaks the match, so the next sync creates new swatches that lose the link with the ones already published (confirmed by the product owner, 2026-10-30).
 
 ## Syncing to Sketch shared styles
 
@@ -40,3 +40,9 @@ Architecturally, variable and style sync mirror Figma's naming and behavior, but
 - [Figma](figma.md), [Penpot](penpot.md) — platforms with true theme/mode support, unlike Sketch's flat swatches/styles
 - [Framer](framer.md) — the other platform with no theme/mode concept, but user-scoped storage instead of document-scoped
 - [Palette](../01-domain-model/palette.md) — what gets synced (shades, themes) and where it comes from
+
+## History
+
+| Date | Change |
+| --- | --- |
+| 2026-10-30 | Variable sync matching clarified with the product owner: by name, so renaming a source color unlinks the published swatches |
