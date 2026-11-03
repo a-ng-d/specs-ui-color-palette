@@ -25,7 +25,7 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 - Score filters are not persisted and not tracked — only the display toggles are. Non-persistence is intentional (filters are meant to be a transient view, reset on reopen); the lack of tracking is **not** — confirmed a gap to fix, not deliberate (see Acceptance criteria).
 - There's no configurable pass/fail threshold in the UI; thresholds are hardcoded, aligned with WCAG 2.1 (ratio-based) and with APCA, the contrast method proposed for WCAG 3.0 (still a W3C Working Draft).
 - The pass/fail thresholds used in the contrast report and the ones used to filter the shade list are supposed to be identical, and currently aren't (see Acceptance criteria).
-- The vision-simulation control does **not** live in the preview settings panel — it lives in the themes panel instead, applied per theme.
+- The vision-simulation control does **not** live in the preview settings panel anymore — it lives in Settings (for the active theme) and in each theme's parameters, and it is always tied to a theme (color mode).
 
 ## Acceptance criteria
 
@@ -61,7 +61,7 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 
 - [Palette](../01-domain-model/palette.md) — shades and their pre-computed `textContrast` (WCAG/APCA), the source of what this module displays
 - [Scale](scale.md) — the contrast-ratio editing mode shares the same WCAG math as this module's report
-- [Settings](settings.md) — color space and vision-simulation controls also appear in the preview panel
+- [Settings](settings.md) — the color space control also appears in the preview panel; vision simulation does not
 - [Inspect](inspect.md) — reuses this module's shade grid and contrast report verbatim in a read-only mode
 
 ## History
@@ -74,3 +74,4 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 | 2026-08-04 | Resolved three open questions: vision-simulation handler is legacy code kept as a possible future re-connection point; thresholds confirmed aligned with WCAG 2.1/3.0; readability-score formula documented (APCA Lc rescaled to 100 × font-weight weighting) |
 | 2026-08-06 | Confirmed the missing analytics tracking on score filters is a genuine gap, not intentional — added as a third confirmed bug (status line updated), with a new acceptance criterion (filters should be tracked, mirroring the display toggles). |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
+| 2026-11-03 | Clarified with the product owner: vision simulation is no longer in the preview panel; it lives in Settings (active color mode) and in each theme's parameters, always tied to a mode |

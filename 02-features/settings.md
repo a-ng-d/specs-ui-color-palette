@@ -63,7 +63,7 @@ None of the four settings sections talks to a bridge or store directly — every
 ## See also
 
 - [Palette](../01-domain-model/palette.md) §2/§3/§5 — source color, theme, and global-setting operations
-- [Preview](preview.md) — color space and vision-simulation controls are duplicated in the preview panel
+- [Preview](preview.md) — the color space control is duplicated in the preview panel; vision simulation is not (it lives here and in each theme's parameters)
 - [Palettes](palettes.md) — the Danger Zone deletion action, local-listing counterpart
 - [Colors](colors.md) — individual source-color operations, out of scope here
 - [Themes](themes.md) — this module's vision-simulation control duplicates a second, independent one living per-theme in `Themes.tsx`
@@ -80,3 +80,4 @@ None of the four settings sections talks to a bridge or store directly — every
 | 2026-08-04 | Linked new [Colors](colors.md) and [Themes](themes.md) specs; flagged that this module's vision-simulation control duplicates a second, independent one in `Themes.tsx` |
 | 2026-10-28 | Confirmed by the product owner: OKLCH is the default color space; OKLCH, LCH and HSL on every plan, the others `/pro`; every color space on every platform, Penpot included |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
+| 2026-11-03 | Clarified with the product owner: vision simulation is no longer in the preview panel; it lives in Settings (active color mode) and in each theme's parameters, always tied to a mode |
