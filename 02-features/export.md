@@ -12,7 +12,7 @@ Export is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched 
 ## User flow
 
 1. From the mode switcher, the user opens Export — a separate top-level mode from Edit and Inspect, reached via the same tab bar documented in Inspect.
-2. A format picker lets the user choose an export target: native/DTCG/Style Dictionary/universal design tokens; CSS/SCSS/LESS stylesheets (each with a color-space sub-choice: RGB, HEX, HSL, LCH, OKLCH, P3); Tailwind v3/v4; Apple SwiftUI/UIKit; Android Compose/XML; or CSV.
+2. A format picker lets the user choose an export target: native/DTCG/Style Dictionary/universal design tokens; CSS/SCSS/LESS stylesheets (each with a color-space sub-choice: RGB, HEX, HSL, LCH, OKLCH, plus P3 for CSS only); DTCG tokens have their own sub-choice, RGB or OKLCH; Tailwind v3/v4; Apple SwiftUI/UIKit; Android Compose/XML; or CSV.
 3. The generated code is shown in a read-only preview; the user can copy it to the clipboard (with a temporary "copied" confirmation) or download it as a file.
 4. Downloading picks the right file name/extension per format (`.swift`, `.kt`, `.scss`, `.less`, `tailwind.config.js`, `tailwind.theme.css`, or a generic name for the rest); CSV is the only format that downloads as a **zip archive** (one file per color, grouped into per-theme folders) rather than a single file.
 

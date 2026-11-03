@@ -11,7 +11,7 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 
 ## User flow
 
-1. From the shade list, the user can show/hide WCAG and APCA scores, and show/hide "pass range" banners for each, via independent toggles.
+1. From the shade list, the user can show/hide WCAG and APCA scores, and show/hide "pass range" banners for each, via independent toggles. Hovering a WCAG score shows its grade (A, AA or AAA).
 2. The user can filter shades by pass/fail status, separately for WCAG and APCA, and separately for light and dark foreground — a "Reset" option appears once any filter is active.
 3. Clicking a shade opens a full-screen contrast report (while editing) showing:
    - The source color and shade name, with previous/next navigation between shades.
@@ -23,7 +23,7 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 ## Rules
 
 - Score filters are not persisted and not tracked — only the display toggles are. Non-persistence is intentional (filters are meant to be a transient view, reset on reopen); the lack of tracking is **not** — confirmed a gap to fix, not deliberate (see Acceptance criteria).
-- There's no configurable pass/fail threshold in the UI; thresholds are hardcoded, aligned with the WCAG 2.1 (ratio-based) and WCAG 3.0 (APCA-based) standards.
+- There's no configurable pass/fail threshold in the UI; thresholds are hardcoded, aligned with WCAG 2.1 (ratio-based) and with APCA, the contrast method proposed for WCAG 3.0 (still a W3C Working Draft).
 - The pass/fail thresholds used in the contrast report and the ones used to filter the shade list are supposed to be identical, and currently aren't (see Acceptance criteria).
 - The vision-simulation control does **not** live in the preview settings panel — it lives in the themes panel instead, applied per theme.
 
