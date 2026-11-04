@@ -13,7 +13,7 @@ One of four alternative ways to seed a new palette: pick a base color and a harm
 
 1. The user picks a base color and one of five harmony rules: Analogous, Complementary, Compound, Triadic, Tetradic.
 2. The wheel recomputes live as either the base color or the rule changes, showing a preview row of the resulting swatches (hex code + closest color name per swatch).
-3. The user commits with "Use this palette" — the candidate colors become the new palette's source colors, and the app switches back to the Manage service with the new palette already created and open.
+3. The user commits with "New UI Color Palette" (or "Start with this palette" when there is no palette yet) — the candidate colors become the new palette's source colors, and the app switches back to the Manage service with the new palette already created and open.
 
 ## Rules
 

@@ -12,9 +12,9 @@ Export is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched 
 ## User flow
 
 1. From the mode switcher, the user opens Export — a separate top-level mode from Edit and Inspect, reached via the same tab bar documented in Inspect.
-2. A format picker lets the user choose an export target: native/DTCG/Style Dictionary/universal design tokens; CSS/SCSS/LESS stylesheets (each with a color-space sub-choice: RGB, HEX, HSL, LCH, OKLCH, plus P3 for CSS only); DTCG tokens have their own sub-choice, RGB or OKLCH; Tailwind v3/v4; Apple SwiftUI/UIKit; Android Compose/XML; or CSV.
+2. A format picker lets the user choose an export target: native/DTCG/Style Dictionary/universal design tokens; CSS/SCSS/LESS stylesheets (each with a color-space sub-choice: RGB, HEX, HSL, LCH, OKLCH, plus P3 for CSS only); DTCG tokens have their own sub-choice, RGB or OKLCH; Tailwind v3/v4 (Tailwind v4 has its own sub-choice, HEX or OKLCH, available in the engine and being wired into the plugin menu); Apple SwiftUI/UIKit; Android Compose/XML; or CSV.
 3. The generated code is shown in a read-only preview; the user can copy it to the clipboard (with a temporary "copied" confirmation) or download it as a file.
-4. Downloading picks the right file name/extension per format (`.swift`, `.kt`, `.scss`, `.less`, `tailwind.config.js`, `tailwind.theme.css`, or a generic name for the rest); CSV is the only format that downloads as a **zip archive** (one file per color, grouped into per-theme folders) rather than a single file.
+4. Downloading picks the right file name/extension per format: `.swift`, `.kt`, `.scss`, `.less`, `tailwind.config.js`, `tailwind.theme.css`, and for the other formats the palette name in snake_case with the format's extension (a DTCG export with a single file downloads as `<palette_name>.json`, not `primitives.tokens.json`, which is only the name of the file inside the preview and the zip). A format that produces several files downloads as a **zip archive** named after the palette: the CSV (one file per color, grouped into per-theme folders) and the DTCG export with several color modes (`<mode>.primitives.tokens.json` files plus `tokens.resolver.json`). The file naming is inconsistent between formats and is to be improved.
 
 ## Rules
 
@@ -65,3 +65,4 @@ Reuses the engine's `Code`/`Data` classes to turn `base`/`themes` into the selec
 | 2026-10-28 | Confirmed by the product owner: Framer's export set (SCSS included) and OKLCH in the CSS, SCSS and Less color-space choice |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
 | 2026-10-29 | Confirmed by the product owner: the color-space flags switch the color model of the exported code, not plan availability |
+| 2026-11-04 | Aligned with the code and the product owner: download file names written down as they are today (naming to improve)

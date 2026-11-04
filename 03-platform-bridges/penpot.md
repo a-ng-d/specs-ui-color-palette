@@ -15,8 +15,8 @@ Fill in further with `../TEMPLATE.md` for any development specific to this platf
 
 - Each shade of the palette becomes a **design token**, grouped into one or more token **Sets** — Penpot's native equivalent of Figma's variables, though organized differently.
 - **No themes**: a single Set holds every token for the palette.
-- **With themes**: one Set per theme, each paired with a matching Penpot **Theme** — the direct equivalent of Figma's "one mode per theme," expressed through Penpot's own token/theme model instead of collections and modes.
-- Tokens are self-documenting, same as Figma variables: source color vs. generated shade, lightness percentage, WCAG/APCA contrast score.
+- **With themes**: one Set per color mode, named `<palette>/<mode>`, and one Penpot **Theme** per color mode, in a group named after the palette — the counterpart of Figma's "one mode per theme," expressed through Penpot's own token/theme model. The sync creates the themes but does **not** link them to their sets (`theme.addSet` is not called in `createLocalTokens.ts`): the user links each theme to its set in Penpot's *Edit themes*.
+- A token carries the description of its source color. The lightness and the WCAG/APCA scores of each shade are not written in the token; they stay in the plugin.
 - Safe to re-run — existing sets, themes, and tokens are reused, never duplicated.
 
 ## Syncing to Penpot styles

@@ -13,8 +13,8 @@ One of four alternative ways to seed a new palette: describe what you want in a 
 
 1. The user types a free-text prompt, or picks one of 12 curated presets (6 "vibes": cyberpunk, minimalist, pastel, corporate, nature, vintage; 6 "use cases": landing, blog, resume, portfolio, documentation, ecommerce) — hovering a preset previews its full prompt text before selecting it.
 2. The user requests generation; while processing, the UI shows a loading state.
-3. The AI returns a fixed 5-role palette — primary, text, success, warning, alert — each becoming one source color, named `"{role} · {AI-given name}"`.
-4. The user commits with "Use this palette" — same handoff as the other three methods (see Creation): the palette is created and opened immediately.
+3. The AI returns a fixed 5-role palette — primary, text, success, warning, alert — each becoming one source color, named `"{AI-given name}"`.
+4. The user commits with "New UI Color Palette" (or "Start with this palette" when there is no palette yet) — same handoff as the other three methods (see Creation): the palette is created and opened immediately.
 5. If generation fails (including when the AI client isn't available at all), an inline error message is shown instead of a result.
 
 ## Rules

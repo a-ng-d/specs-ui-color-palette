@@ -2,7 +2,7 @@
 
 - **Status**: Draft — engine/API/MCP available today; the design-tool UI is now named and scoped as its own spec, see [Structure](structure.md)
 - **Package(s) concerned**: `engine-ui-color-palette` (resolution logic), `api-ui-color-palette` / `mcp-ui-color-palette` (exposure), `claude-ui-color-palette` (guided workflow), `ui-ui-color-palette` (not implemented yet)
-- **Related spec**: [Color System (domain model)](../01-domain-model/color-system.md), [Platform bridges](../03-platform-bridges/bridge-actions.md) (how primitives sync today — the semantic layer doesn't sync anywhere yet)
+- **Related spec**: [Color System (domain model)](../01-domain-model/color-system.md), [Platform bridges](../03-platform-bridges/bridge-actions.md) (how primitives sync today — the plugins don't sync the semantic layer yet; through Claude and MCP, it is already created as variables on Figma and as tokens on Penpot)
 
 ## Problem
 
@@ -33,7 +33,7 @@ Today this only happens through the API/MCP tool `get_color_system` or the Claud
 - A binding whose shade reference doesn't exist for a given theme (e.g. a theme that dropped a color the others have) resolves to null for that token in that theme only; other themes are unaffected.
 - `isExcluded` tokens are **never resolved at all** — confirmed engine behavior (`System.resolveToken()` forces a null `shadeId` for every theme when `isExcluded` is true, the same path as "no binding exists"), not "resolved internally and only hidden at export" as previously stated here. An excluded token therefore never appears in code, variables, tokens, any export, or generated documentation.
 - **A binding that can't resolve (primitive not linked) — confirmed API behavior**: the API doesn't block or throw; it keeps returning the unresolved/null value for that token, the same as any other broken reference (see the "resolves to null" rule above) — it's not repaired or hidden automatically. Repairing it is left to other tooling: in-app (design-tool UI), the affected token is tagged with a warning (see [Structure](structure.md)); for a cloud-published palette, the expectation is that MCP-driven tools (e.g. an LLM orchestrator) are used to update/rebind the palette's system, rather than the bare API doing anything special.
-- Platform sync for the semantic layer doesn't exist at the bridge level yet. Figma/Penpot can alias semantic tokens to primitive variables/tokens (a real reference). **Sketch and Framer have no aliasing concept at all** — there's no binding/reference mechanism to sync there; what gets created instead is purely **organizational structure** (a "Primitives" + a "Semantics" folder/group of otherwise-standalone styles) — the semantic *role* is conveyed through naming and folder structure, not through any live link to the primitive value. See [Structure](structure.md) for the per-platform detail (Figma/Penpot/Sketch/Framer) this generalizes.
+- The plugins' own bridges don't sync the semantic layer yet. Today it reaches the design tools through **Claude via MCP**: the Figma skill creates a semantic variable collection on top of the primitive variables, and the Penpot skill adds semantic tokens that reference the primitive tokens. Figma/Penpot can alias semantic tokens to primitive variables/tokens (a real reference). **Sketch and Framer have no aliasing concept at all** — there's no binding/reference mechanism to sync there; what gets created instead is purely **organizational structure** (a "Primitives" + a "Semantics" folder/group of otherwise-standalone styles) — the semantic *role* is conveyed through naming and folder structure, not through any live link to the primitive value. See [Structure](structure.md) for the per-platform detail (Figma/Penpot/Sketch/Framer) this generalizes.
 
 ## Acceptance criteria
 
@@ -49,16 +49,16 @@ Today this only happens through the API/MCP tool `get_color_system` or the Claud
 ## Out of scope
 
 - Building the design-tool UI itself — this spec scopes it but doesn't implement it.
-- Syncing the semantic layer to any platform's native mechanism — not scoped at the bridge level yet, for any platform.
+- Syncing the semantic layer to a platform's native mechanism from the plugins' own bridges — not scoped yet, for any platform (Claude via MCP already does it on Figma and Penpot).
 - The adjacent-shade suggestion enhancement (darker/lighter, same family) — confirmed as a **future**, non-v1 addition on top of the confirmed hand-editing v1 (see User flow); not scoped further here.
 
 ## Implementation notes
 
 See [`../01-domain-model/color-system.md`](../01-domain-model/color-system.md) for the full data shape (`SystemConfiguration`, `SystemData`, taxonomy schema, binding format) — not duplicated here.
 
-- **Bridges**: none yet for the semantic layer specifically — primitive sync bridges are unaffected until platform sync is scoped.
+- **Bridges**: none yet in the plugins for the semantic layer specifically — primitive sync bridges are unaffected until platform sync is scoped.
 - **API / MCP**: already covered by `get_color_system`, and by `generate_code` when a system is passed alongside `base`/`themes`.
-- **Platforms**: not yet available anywhere as a design-tool artifact — only as generated code/tokens.
+- **Platforms**: not yet available in the plugins as a design-tool artifact — as generated code/tokens, and, through Claude via MCP, as variables on Figma and tokens on Penpot.
 
 ## Open questions
 
@@ -88,3 +88,4 @@ See [`../01-domain-model/color-system.md`](../01-domain-model/color-system.md) f
 | 2026-08-05 | Corrected the `isExcluded` behavior: the engine never resolves an excluded token at all (confirmed by the requester as intended), not "resolved internally, hidden only at export" as previously documented here and in the domain model. Resolves a prior open question. |
 | 2026-08-05 | Resolved the remaining three open questions: broken-reference behavior (silently nulled at API/engine level, warning-tagged in the design-tool UI, expected to be fixed via MCP-driven tooling for cloud palettes); hand-editing confirmed for v1 with an adjacent-shade suggestion as a future enhancement (superseding the orchestrator-guided-flow framing in User flow); per-platform semantic sync confirmed as real aliasing on Figma/Penpot vs. structure-only (no binding at all) on Sketch/Framer. No open questions remain in this spec. |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
+| 2026-11-04 | Confirmed by the product owner: the plugins don't sync the semantic layer yet, but Claude via MCP already creates it as variables (Figma) and tokens (Penpot) |
