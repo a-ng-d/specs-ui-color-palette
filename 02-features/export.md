@@ -1,18 +1,18 @@
 # Feature — Export (code & token export)
 
-- **Status**: Implemented (as-is behavior, with a confirmed feature-flag bug flagged — see Acceptance criteria)
+- **Status**: Implemented
 - **Package(s) concerned**: `ui-ui-color-palette`
 - **UI module**: `src/ui/modes/ExportPalette.tsx`, `src/ui/contexts/Export.tsx`
 - **Related spec**: [Palette](../01-domain-model/palette.md) (§8), [Color System](../01-domain-model/color-system.md), [Settings](settings.md), [Inspect](inspect.md)
 
 ## Problem
 
-Export is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched via a tab bar) — it lets the user turn the current palette into copy-pasteable or downloadable code across roughly 20 target formats. It mostly works, but one color-space feature flag is misconfigured: OKLCH export reuses the exact same feature flag as LCH (a copy-paste bug), so it can never be toggled independently of it.
+Export is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched via a tab bar) — it lets the user turn the current palette into copy-pasteable or downloadable code across roughly 20 target formats. It covers the stylesheet, token, Tailwind, Apple, Android and CSV targets, each with its own color-space choice where the format supports several.
 
 ## User flow
 
 1. From the mode switcher, the user opens Export — a separate top-level mode from Edit and Inspect, reached via the same tab bar documented in Inspect.
-2. A format picker lets the user choose an export target: native/DTCG/Style Dictionary/universal design tokens; CSS/SCSS/LESS stylesheets (each with a color-space sub-choice: RGB, HEX, HSL, LCH, OKLCH, plus P3 for CSS only); DTCG tokens have their own sub-choice, RGB or OKLCH; Tailwind v3/v4 (Tailwind v4 has its own sub-choice, HEX or OKLCH, available in the engine and being wired into the plugin menu); Apple SwiftUI/UIKit; Android Compose/XML; or CSV.
+2. A format picker lets the user choose an export target: native/DTCG/Style Dictionary/universal design tokens; CSS/SCSS/LESS stylesheets (each with a color-space sub-choice: RGB, HEX, HSL, LCH, OKLCH, plus P3 for CSS only); DTCG tokens have their own sub-choice, OKLCH by default or RGB; Tailwind v3/v4 (Tailwind v4 has its own sub-choice, OKLCH by default or HEX: the `@theme` variables keep the same names, `--color-<color>-<stop>`, with `oklch()` values, so an OKLCH Tailwind setup no longer needs the CSS export and a manual renaming); Apple SwiftUI/UIKit; Android Compose/XML; or CSV.
 3. The generated code is shown in a read-only preview; the user can copy it to the clipboard (with a temporary "copied" confirmation) or download it as a file.
 4. Downloading saves the file under a name that follows one convention for every format, `<palette>.<role>.<ext>` (see Rules). A format that produces several files downloads as a **zip archive** named `<palette>.zip`: the CSV (one file per color, grouped into per-theme folders) and the DTCG export with several color modes (`<mode>.primitives.tokens.json` files plus `tokens.resolver.json`).
 
@@ -20,7 +20,8 @@ Export is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched 
 
 - Picking a different format regenerates the code fresh from the current palette props each time (via a `getCodeFromProps` helper) — it's not a stale snapshot taken once at mount.
 - Every export target and every color-space sub-choice has its own feature flag.
-- Each color-space option has its own feature flag, which switches the color model written in the exported code. The OKLCH color-space option's flag reuses the LCH flag's feature name (`EXPORT_COLOR_SPACE_LCH` instead of `EXPORT_COLOR_SPACE_OKLCH`) — a copy-paste bug. As a result, OKLCH always follows LCH's flag and can't be toggled independently. *(confirmed bug — see Acceptance criteria)*
+- Each color-space option has its own feature flag (`EXPORT_COLOR_SPACE_RGB`, `_HEX`, `_HSL`, `_LCH`, `_OKLCH`, `_P3`), which switches the color model written in the exported code. The same flags drive the color-space choice of every format that offers one (CSS, SCSS, LESS, DTCG, Tailwind v4).
+- **Color-space order**: in every format's color-space choice, the available spaces are always listed in the same order: **OKLCH, LCH, P3, RGB, HEX, HSL** — perceptual spaces first, OKLCH leading, then wide gamut, then the sRGB notations. A format only shows the spaces it supports (DTCG: OKLCH, RGB; Tailwind v4: OKLCH, HEX; CSS: all six; SCSS and LESS: all but P3). **OKLCH is also the space selected by default** when CSS (including when Export mode opens, CSS being the initial format), SCSS, LESS, DTCG or Tailwind v4 is picked — every format that offers a color-space choice. The user can still pick any other available space.
 - **Download file names** follow `<palette>.<role>.<ext>`, the same on every platform. `<palette>` is the palette name in kebab-case (`My Palette` → `my-palette`), or the translated placeholder name when the palette is unnamed. `<role>.<ext>` reuses the engine's file name for the format (`primitives.css`, `primitives.tokens.json`…), except for Tailwind, which keeps a `tailwind` role. The names are computed in the UI (`getExportFileName` in `ExportPalette.tsx`); the engine's own file names are unchanged and are still used for the files inside a zip.
 
   | Format | Downloaded file |
@@ -45,7 +46,8 @@ Export is one of three top-level modes (`EDIT` / `INSPECT` / `EXPORT`, switched 
 
 ## Acceptance criteria
 
-- [ ] Given the color-space picker for a CSS/SCSS/LESS export, when OKLCH is selected, then it is driven by its own `EXPORT_COLOR_SPACE_OKLCH` feature flag, independent of LCH. *(currently reuses the LCH flag — confirmed bug, fix pending)*
+- [ ] Given the color-space picker for a CSS/SCSS/LESS export, when OKLCH is selected, then it is driven by its own `EXPORT_COLOR_SPACE_OKLCH` feature flag, independent of LCH.
+- [ ] Given the Tailwind v4 export, when the user opens it, then the color-space picker offers OKLCH (selected by default) and HEX; OKLCH writes the `--color-*` variables with `oklch()` values, HEX with hex values, and the download keeps the `<palette>.tailwind.css` name.
 - [ ] Given any export format, when the user copies the code, then it is copied via the clipboard and a temporary confirmation is shown; on failure, a warning is surfaced instead of failing silently.
 - [ ] Given the CSV format, when the user downloads it, then a zip archive is produced with one file per color, grouped by theme folder (default theme's colors at the archive root).
 - [ ] Given any other format, when the user downloads it, then the file is saved as `<palette>.<role>.<ext>` per the table in Rules, with the palette's name in kebab-case (or the translated placeholder if unnamed).
@@ -87,3 +89,7 @@ Reuses the engine's `Code`/`Data` classes to turn `base`/`themes` into the selec
 | 2026-10-29 | Confirmed by the product owner: the color-space flags switch the color model of the exported code, not plan availability |
 | 2026-11-04 | Aligned with the code and the product owner: download file names written down as they are today (naming to improve)
 | 2026-11-05 | File naming convention decided by the product owner and applied (POR-687): `<palette>.<role>.<ext>` for every format, `<palette>.zip` for multi-file exports
+| 2026-11-05 | Tailwind v4 HEX/OKLCH color-space choice wired into the export menu (POR-682, engine support already there); OKLCH color-space flag bug fixed (`EXPORT_COLOR_SPACE_OKLCH` no longer reuses the LCH feature name) |
+| 2026-11-05 | Color-space choice reordered for every format: OKLCH, LCH, P3, RGB, HEX, HSL (product owner request) |
+| 2026-11-05 | OKLCH made the default color space of the CSS (initial export), SCSS, LESS and Tailwind v4 exports (product owner request); DTCG stays on RGB |
+| 2026-11-05 | DTCG export also defaults to OKLCH (product owner request) |
