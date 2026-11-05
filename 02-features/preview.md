@@ -11,7 +11,7 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 
 ## User flow
 
-1. From the shade list, the user can show/hide WCAG and APCA scores, and show/hide "pass range" banners for each, via independent toggles. Hovering a WCAG score shows its grade (A, AA or AAA).
+1. From the shade list, the user can show/hide WCAG and APCA scores, and show/hide "pass range" banners for each, via independent toggles. In the full (non-compact) shade list, hovering a shade swaps its score chips to an enriched label — the WCAG 2.1 grade (A, AA or AAA) and the APCA minimum recommended usage — when the contrast report is available to the user; otherwise the chips keep the raw score (`4.52 : 1`, `Lc 61.3`) on hover. The compact shade list is unaffected.
 2. The user can filter shades by pass/fail status, separately for WCAG and APCA, and separately for light and dark foreground — a "Reset" option appears once any filter is active.
 3. Clicking a shade opens a full-screen contrast report (while editing) showing:
    - The source color and shade name, with previous/next navigation between shades.
@@ -25,6 +25,7 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 - Score filters are not persisted and not tracked — only the display toggles are. Non-persistence is intentional (filters are meant to be a transient view, reset on reopen); the lack of tracking is **not** — confirmed a gap to fix, not deliberate (see Acceptance criteria).
 - There's no configurable pass/fail threshold in the UI; thresholds are hardcoded, aligned with WCAG 2.1 (ratio-based) and with APCA, the contrast method proposed for WCAG 3.0 (still a W3C Working Draft).
 - The pass/fail thresholds used in the contrast report and the ones used to filter the shade list are supposed to be identical, and currently aren't (see Acceptance criteria).
+- **Score chips never resize the grid on hover.** Each chip is as wide as its content, capped at the space of its cell. When a shade is hovered, the chips are capped at the width the cell already has, so an enriched label longer than that is truncated with an ellipsis instead of widening the cell, the row and the whole grid. Hovering never changes a cell's width or height.
 - The vision-simulation control does **not** live in the preview settings panel anymore — it lives in Settings (for the active theme) and in each theme's parameters, and it is always tied to a theme (color mode).
 
 ## Acceptance criteria
@@ -32,6 +33,8 @@ The contrast report has two confirmed bugs: its pass/fail scores can disagree wi
 - [ ] Given a shade's WCAG/APCA scores, when they're shown in the contrast report and when they're used to filter the shade list, then both use the identical pass/fail comparison. *(currently the two disagree — confirmed bug, fix pending)*
 - [ ] Given the contrast report is open, when the user types sample text, changes font weight, or switches tabs, then no additional "report opened" analytics event fires. *(currently fires on every such re-render — confirmed bug, fix pending)*
 - [ ] Given the contrast report is closed and reopened, when it opens, then exactly one "report opened" analytics event fires.
+- [ ] Given the full shade list, when the user hovers a shade, then no cell changes width or height and the grid does not shift; an enriched label that doesn't fit ends with an ellipsis.
+- [ ] Given the contrast report is not available to the user, when they hover a shade, then the score chips keep their raw format.
 - [ ] Given a score-display toggle is flipped, when the change is applied, then it persists across sessions and is tracked in analytics.
 - [ ] Given a score filter is changed, when shades are filtered, then the result updates immediately without persistence — but **is** tracked in analytics, matching the display toggles. *(currently untracked — confirmed gap, not intentional, fix pending)*
 
@@ -75,3 +78,4 @@ Score display state is 4 independent booleans plus a 4-way filter state (WCAG/AP
 | 2026-08-06 | Confirmed the missing analytics tracking on score filters is a genuine gap, not intentional — added as a third confirmed bug (status line updated), with a new acceptance criterion (filters should be tracked, mirroring the display toggles). |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro) |
 | 2026-11-03 | Clarified with the product owner: vision simulation is no longer in the preview panel; it lives in Settings (active color mode) and in each theme's parameters, always tied to a mode |
+| 2026-11-05 | Hover behavior of the score chips fixed (POR-668): the enriched label is tied to the contrast report's availability, and long labels are truncated with an ellipsis so the grid no longer shifts |

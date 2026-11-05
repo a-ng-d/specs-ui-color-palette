@@ -11,7 +11,7 @@ Scale editing has real internal inconsistencies that were never resolved: two di
 
 ## User flow
 
-1. The user picks a preset from 19 built-in options — 3 custom starting points (1–10, 10–100, 100–1000) and 16 named presets — the scale recomputes from that preset's stops/bounds/easing.
+1. The user picks a preset from 21 built-in options — 3 custom starting points (1–10, 10–100, 100–1000) and 18 named presets — the scale recomputes from that preset's stops/bounds/easing. Presets from an outdated version of a design system stay in their family's submenu, listed after the current ones under a **Deprecated** title (see Rules).
 2. The user edits the scale in one of two mutually exclusive views, toggled by a single switch, both operating on the exact same underlying scale:
    - **Raw editing** — direct stop/lightness/hue/chroma editing.
    - **Contrast-ratio editing** — set a target WCAG contrast ratio per stop instead, and the underlying lightness is solved for it.
@@ -23,8 +23,12 @@ Scale editing has real internal inconsistencies that were never resolved: two di
 
 ## Rules
 
-- 6 of the 19 presets show a "(family)" suffix in their name — Material, Material 3 (family "Google"), ADS, ADS Neutral (family "Atlassian"), and Spectrum, Spectrum Neutral (family "Adobe"). Each is set via a per-preset `updateName` flag hardcoded in the switch-preset handler; the other 13 presets (Tailwind, Ant, Bootstrap, Radix, Untitled UI, Open Color, Carbon, Base, Polaris, Fluent, plus the 3 custom starting points) never get the suffix. No single systematic rule ties the flag to the preset's name/family shape — it reads as a manual, one-off choice per preset.
-- **Spectrum presets**: `Spectrum` has 13 stops (100 to 1300) and `Spectrum Neutral` has 11 (50, 75, 100, then 200 to 900). They do not follow Adobe's current token scale (16 stops, 100 to 1600, and a gray from 25 to 1000); they were most likely based on an earlier version of it — to confirm. The `Spectrum Neutral` entry of the preset menu is labeled "Spectrum, Neutral 25-900" while its first stop is 50: a known label bug, to fix in the plugin's translations.
+- 8 of the 21 presets show a "(family)" suffix in their name — Material, Material 3 (family "Google"), ADS, ADS Neutral (family "Atlassian"), and Spectrum 1, Spectrum 1 Neutral, Spectrum 2, Spectrum 2 Neutral (family "Adobe"). Each is set via a per-preset `updateName` flag hardcoded in the switch-preset handler; the other 13 presets (Tailwind, Ant, Bootstrap, Radix, Untitled UI, Open Color, Carbon, Base, Polaris, Fluent, plus the 3 custom starting points) never get the suffix. No single systematic rule ties the flag to the preset's name/family shape — it reads as a manual, one-off choice per preset.
+- **Spectrum presets**: two generations are offered side by side, both in the "Adobe" family.
+  - **Spectrum 1** (`SPECTRUM`, `SPECTRUM_NEUTRAL`), Adobe's earlier scale: 13 stops from 100 to 1300, and a neutral of 11 stops (50, 75, 100, then 200 to 900). Labeled "Spectrum 1, 100-1300" and "Spectrum 1, Neutral 50-900". Deprecated.
+  - **Spectrum 2** (`SPECTRUM_2`, `SPECTRUM_2_NEUTRAL`), Adobe's current scale: 16 stops from 100 to 1600 (bounds 16–96), and a neutral of 13 stops (25, 50, 75, 100, then 200 to 1000, bounds 0–100). Labeled "Spectrum 2, 100-1600" and "Spectrum 2, Neutral 25-1000".
+- **Deprecated presets**: a preset can carry an `isDeprecated` status in its definition (`PresetDefinition`, the engine's `PresetConfiguration` plus `isDeprecated`). It marks a preset that follows an outdated version of a design system: it stays fully supported and selectable, and existing palettes keep it. It stays in its family's submenu, after the family's current presets, under a translated **Deprecated** title (`scale.presets.deprecated`); the title only appears in a family that has at least one active deprecated preset. Google shows Material 3, then Deprecated and Material Design; Adobe shows Spectrum 2 and Spectrum 2 Neutral, then Deprecated, Spectrum 1 and Spectrum 1 Neutral. The title inside a submenu needs `@unoff/ui` 1.27.1 or later, earlier versions rendered it as a clickable entry. Deprecated today: Material Design (`MATERIAL`, superseded by Material 3), Spectrum 1 and Spectrum 1 Neutral (superseded by Spectrum 2). Deprecating another preset only takes setting `isDeprecated: true` on it.
+  - The status is copied into the palette with the rest of the preset object when the preset is picked. A palette that picked a deprecated preset before it was marked does not carry the status until the preset is picked again; the menu does not depend on it, as it reads the status from the preset list.
 - Custom stops: a hardcoded ceiling of 24 stops exists. This ceiling is a technical limit tied to how much data each host platform can currently persist per palette; it's expected to be revisited if platforms allow storing more data.
 - Adding a stop derives its new position from the existing stops; confirmed to stay correct after repeated add/remove cycles on unevenly spaced stops.
 - **Reset** behaves differently depending on which view triggered it: raw-editing reset restores stops, chroma, and hue to the preset's defaults; contrast-ratio reset only restores chroma. Neither reapplies the preset's original easing curve — both silently fall back to linear.
@@ -41,12 +45,15 @@ Scale editing has real internal inconsistencies that were never resolved: two di
 - [ ] Given the user reverses the stops, when the action is tracked, then the analytics event correctly identifies "reverse" as the triggering action. *(currently the message never records which action triggered it — confirmed gap)*
 - [ ] Given the user shifts hue or chroma, when the action completes, then it is tracked in analytics the same way preset/stop/reset changes are. *(currently not tracked at all — confirmed gap)*
 - [ ] Given the keyboard-shortcuts panel is open, when it re-renders without the user reopening it, then no additional "opened" analytics event fires. *(currently fires on every re-render — confirmed gap)*
+- [ ] Given the preset menu is open, when it lists the presets, then each deprecated preset (Material Design, Spectrum 1, Spectrum 1 Neutral) appears in its family's submenu, after the current presets, under the translated Deprecated title, and remains selectable.
+- [ ] Given the Adobe family, when the user opens it, then Spectrum 2 (16 stops, 100 to 1600) and Spectrum 2 Neutral (13 stops, 25 to 1000) are offered.
 - [ ] Given an edit breaks stop monotonicity, when the scale re-sorts, then stops remain lighter/darker than their neighbors in order, while still favoring the just-edited value.
 
 ## Out of scope
 
 - Removing the 24-stop cap — kept deliberately as a technical ceiling that may be raised if host platforms allow persisting more data per palette; not cleanup debt.
-- Making the "(family)" suffix rule systematic — it stays a manual, per-preset choice (see Rules for the current 6).
+- Making the "(family)" suffix rule systematic — it stays a manual, per-preset choice (see Rules for the current 8).
+- Removing deprecated presets — they stay supported for existing palettes and users who rely on them.
 - Any change to which runtime applies scale updates on the host side (the embedded `engine-ui-color-palette`), or how it maps to each platform's sandbox.
 
 ## Implementation notes
@@ -82,3 +89,4 @@ Reuses the engine's `PresetConfiguration`, `ScaleConfiguration` (stop → lightn
 | 2026-08-04 | Linked new [Colors](colors.md) and [Themes](themes.md) specs |
 | 2026-10-29 | Plan, gating and credits content removed; plans live in the docs (free-and-pro); preset count fixed to 19 (3 custom + 16 named) |
 | 2026-11-04 | Spectrum presets documented against Adobe's current scale; label bug of `Spectrum Neutral` recorded |
+| 2026-11-05 | Decided by the product owner and implemented (POR-679): Spectrum 2 and Spectrum 2 Neutral added next to the existing presets, renamed Spectrum 1; `Spectrum Neutral` label fixed to 50-900. New deprecated-preset status (`isDeprecated`), shown in each family's submenu under a "Deprecated" title; Material Design and Spectrum 1 marked deprecated. Preset count now 21 (3 custom + 18 named) |

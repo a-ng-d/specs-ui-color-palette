@@ -26,6 +26,7 @@ Implementation confirmed by reading `web-ui-color-palette` (`src/App.tsx`, `src/
 | Route | Service (`App.tsx`'s `Service` state) | Purpose |
 | --- | --- | --- |
 | `/` | — | Redirects (replace) to `/palettes/local`. Unknown paths fall back to the same redirect. |
+| `/start` | `MANAGE` | **Quick start**, meant as the call-to-action link of the website (ui-color-palette.com). Each visit creates a new local palette with a fresh unique id and random source colors (as many as the user may add, 5 by default, named after their closest color name), on the neutral default settings (custom 10–100 preset, OKLCH, no hue/chroma shift) — never on the settings of a previously opened palette. It then replaces the URL with `/palettes/<new id>`, so Back does not return to `/start`. No sign-in is required. It applies the same availability checks and side effects as the "Create palette" action (including its `CREATE_PALETTE` analytics event); when creation isn't available to the user, it lands on `/palettes/local` instead. It only runs in the browser, once the app has loaded (never during server rendering). |
 | `/palettes/:segment?` | `MANAGE` | Palette management (renamed from `/manage`). `:segment` is either a **browse slug** — `local` (default, `LOCAL_PALETTES`) or `library` (`REMOTE_PALETTES`) — or a **palette id** (opens that palette in Edit mode, and is the resolution target for share links — see below). Missing segment redirects to `/palettes/local`. |
 | `/colors/:context?` | `COMBINE` | **Color Combination** (`CombineColors`): the alternative ways to seed a new palette's source colors. `:context` is one of the tools below; a missing or unknown value redirects (replace) to the first one, `/colors/gen`. |
 | `/colors/gen` | `COMBINE` / `GEN` | AI color generation — see [AI generation](../02-features/ai-generation.md). |
@@ -39,9 +40,17 @@ Implementation confirmed by reading `web-ui-color-palette` (`src/App.tsx`, `src/
 - **Palettes**: `/palettes/local`, `/palettes/library`, `/palettes/:id`, and `/palettes/:id?data=<json>` for a data-bearing share link. The palette id is a **path segment** (URI-encoded), no longer an `?id=` query parameter.
 - **Colors**: `/colors/:context` where `:context` is the lowercased `Context` (`gen`, `extract`, `wheel`, `explore`). The tool is a path segment, not state held only in memory, so each tool is deep-linkable and survives a reload.
 - **Address-bar normalization**: once a palette is open, `useSyncPaletteUrl` rewrites the visible path to `/palettes/:id` (query string dropped, hence `data` stripped); with no active palette it returns to `/palettes/local`.
+- **Leaving the Palette Manager closes the open palette.** When the user goes from `/palettes/<id>` to the Color Combination area, the open palette is reset to the neutral state. Coming back to the Manager lands on the neutral `/palettes/local` view, and a palette created from a Color Combination tool starts blank, without inheriting any property of the palette that was open before. On mount, `useSyncPaletteUrl` takes the URL as the source of truth and never routes back to a palette id left over in the store.
 - **Service ↔ URL sync**: `AppLayout` derives `state.service` from the path (`/palettes*` → `MANAGE`, `/colors*` → `COMBINE`). Conversely, when the service flips from `COMBINE` back to `MANAGE` while on a `/colors*` path (i.e. a "Use this palette" commit), the app routes to `/palettes/local`.
 
 Each page mounts the matching `ui-ui-color-palette` service component (`WithConfig`/`WithTranslation`-wrapped: `ManagePalette` for `/palettes`, `CombineColors` for `/colors`) inside a shared `AppStateContext` — this is the "themed reuse of `ui-ui-color-palette`" branch of the Open questions below, now confirmed by code rather than open: the Web App imports the plugin's own service components directly, it does not re-implement them. The four per-tool page files (`gen.tsx`, `extract.tsx`, `wheel.tsx`, `explore.tsx`) were removed; a single `combine.tsx` page serves all of `/colors/*`.
+
+### Analytics
+
+The Web App reimplements the plugin `App` state in `AppStateContext`, so the app-level Mixpanel events the plugins send from `App.tsx` are wired there explicitly:
+
+- **Editor Run**: sent once per app load, after the startup checks (consent, user preferences…) have resolved and no consent dialog is pending, with `Editor: web`. Like on the plugins, it is only sent when the user consented to Mixpanel; a first-time visitor's run is sent after they answer the consent dialog, and not at all if they close it without answering.
+- **Consent Proof Sent**: sent each time the user saves their consent choice, from the first-visit dialog or when reopening it from the preferences (both go through `ConsentHost`).
 
 ## Anchor points to confirm once implementation starts
 
@@ -74,6 +83,7 @@ _Ordered most recent to oldest._
 
 | Date | Change |
 | --- | --- |
+| 2026-11-05 | Added the `/start` quick-start route (POR-675); leaving the Palette Manager now resets the open palette so the Color Combination area and the return to the Manager start neutral (POR-670); new Analytics subsection for the Editor Run and Consent Proof Sent events, now sent on the Web App (POR-673) |
 | 2026-10-07 | Routing reorganized (confirmed by code, `web-ui-color-palette` commits `a945d96`, `9942329`, `0e31de7`, plus the requester): `/manage` renamed `/palettes` (with `local`/`library` browse slugs and palette id as path segment); Gen/Extract/Wheel/Explore regrouped as tools under a new Color Combination area at `/colors/:context` (`COMBINE` service, single `combine.tsx` page); legacy `/gen` `/extract` `/wheel` `/explore` kept as redirects, `/manage` not. Share links now `/palettes/:id?data=…`. Routing table and a new URL pattern subsection rewritten accordingly. |
 | 2026-09-21 | Status changed from Draft to **Implemented** for everything platform-level (routing/SSR, storage, sharing-link mechanism) — the requester confirmed this is live, not a partial/draft implementation. Team spaces and the unverified "iso editing experience" claim remain Draft, called out explicitly in the Status line instead of left implicit. |
 | 2026-09-21 | Requester answered all remaining Open questions from the same-day update: Web App local storage confirmed as IndexedDB (vs. `localStorage` for the plugins' sandboxed hosts), and the ColourLovers → Color Hunt transition on `/explore` confirmed in full (see [ColourLovers import](../02-features/colourlovers-import.md)). No open questions remain in this file as of this entry. |

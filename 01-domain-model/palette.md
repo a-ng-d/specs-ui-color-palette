@@ -39,7 +39,7 @@ Associated bridge: `src/bridges/updates/updateThemes.ts`.
 
 ## 4. Scale operations (`ScaleEvent`)
 
-Preset change (`SWITCH_MATERIAL`, `SWITCH_TAILWIND`, `SWITCH_CUSTOM[_1_10|_10_100|_100_1000]`, `SWITCH_ANT`, `SWITCH_BOOTSTRAP`, `SWITCH_RADIX`, `SWITCH_UNTITLED_UI`, `SWITCH_OPEN_COLOR`, `SWITCH_ADS[_NEUTRAL]`, `SWITCH_SPECTRUM[_NEUTRAL]`, `SWITCH_CARBON`, `SWITCH_BASE`, `SWITCH_POLARIS`, `SWITCH_FLUENT`), easing (`EasingConfiguration`, `APPLY_EASING`), `REVERSE_STOPS`, `RESET_SCALE`, contrast mode (`CONTRAST_MODE_ON/OFF`), keyboard shortcuts.
+Preset change (`SWITCH_MATERIAL`, `SWITCH_TAILWIND`, `SWITCH_CUSTOM[_1_10|_10_100|_100_1000]`, `SWITCH_ANT`, `SWITCH_BOOTSTRAP`, `SWITCH_RADIX`, `SWITCH_UNTITLED_UI`, `SWITCH_OPEN_COLOR`, `SWITCH_ADS[_NEUTRAL]`, `SWITCH_SPECTRUM[_NEUTRAL]`, `SWITCH_SPECTRUM_2[_NEUTRAL]`, `SWITCH_CARBON`, `SWITCH_BASE`, `SWITCH_POLARIS`, `SWITCH_FLUENT`), easing (`EasingConfiguration`, `APPLY_EASING`), `REVERSE_STOPS`, `RESET_SCALE`, contrast mode (`CONTRAST_MODE_ON/OFF`), keyboard shortcuts.
 
 Associated bridge: `src/bridges/updates/updateScale.ts`.
 
